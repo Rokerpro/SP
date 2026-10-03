@@ -152,6 +152,7 @@ function App() {
         setPendingUser(result.data.user)
         setStep('interests')
       } else {
+        setActiveView('home')
         setSessionUser(result.data.user)
       }
     } catch (submitError) {
@@ -349,10 +350,12 @@ function App() {
           </div>
           <h1>{isSignup ? 'JOIN THE BOLT' : 'WELCOME BACK'}</h1>
           <p>{isSignup ? 'START YOUR JOURNEY OR CREATE YOUR SPACE' : 'ENTER YOUR CREDENTIALS TO LOG IN'}</p>
-          <div className="progress-track" aria-label="1 of 3 steps">
-            <span className="progress-fill signup" />
-          </div>
-          <small>1 of 3 Steps</small>
+          {isSignup && <>
+            <div className="progress-track" aria-label="1 of 3 steps">
+              <span className="progress-fill signup" />
+            </div>
+            <small>1 of 3 Steps</small>
+          </>}
         </header>
 
         <section className="auth-card" aria-labelledby="form-title">

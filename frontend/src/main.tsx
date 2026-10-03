@@ -22,6 +22,28 @@ const interestOptions = [
 
 type AuthUser = { id: string; email: string; interests: string[] }
 
+function KeyIcon() {
+  return (
+    <svg className="control-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="8" cy="15" r="4" />
+      <path d="m11 12 8-8m-2 2 2 2m-5 1 2 2" />
+    </svg>
+  )
+}
+
+function EyeIcon({ hidden }: { hidden: boolean }) {
+  return hidden ? (
+    <svg className="control-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 8.5 4 9.5 6a11.7 11.7 0 0 1-3 3.7M6.2 6.2A12.4 12.4 0 0 0 2.5 10c1 2 4.5 6 9.5 6 1 0 1.9-.2 2.7-.5" />
+    </svg>
+  ) : (
+    <svg className="control-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.5" />
+    </svg>
+  )
+}
+
 function App() {
   const [mode, setMode] = useState<'login' | 'signup'>('signup')
   const [showPassword, setShowPassword] = useState(false)
@@ -217,7 +239,7 @@ function App() {
 
             <label htmlFor="password">PASSWORD</label>
             <div className="input-wrap">
-              <span className="field-icon lock-icon" aria-hidden="true">⌑</span>
+              <span className="field-icon" aria-hidden="true"><KeyIcon /></span>
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -233,7 +255,7 @@ function App() {
                 onClick={() => setShowPassword((visible) => !visible)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? '◉' : '◌'}
+                <EyeIcon hidden={showPassword} />
               </button>
             </div>
 

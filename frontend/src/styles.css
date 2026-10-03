@@ -188,8 +188,15 @@ label {
   font-size: 1rem;
 }
 
-.lock-icon {
-  font-size: 1.25rem;
+.control-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 
 input {
@@ -207,6 +214,8 @@ input::placeholder {
 }
 
 .visibility-button {
+  display: grid;
+  place-items: center;
   width: 43px;
   border: 0;
   background: transparent;

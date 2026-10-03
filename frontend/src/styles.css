@@ -1105,12 +1105,10 @@ input::placeholder {
   display: flex;
   height: calc(100vh - 68px);
   max-height: none;
-  flex-direction: column;
   align-items: center;
-  gap: 26px;
-  overflow-y: auto;
+  justify-content: center;
+  overflow: hidden;
   padding: 54px 0 40px;
-  scroll-snap-type: y mandatory;
 }
 
 .reel-card {
@@ -1255,6 +1253,7 @@ input::placeholder {
   top: 50%;
   display: grid;
   gap: 16px;
+  place-items: center;
   transform: translateY(-50%);
 }
 
@@ -1270,6 +1269,17 @@ input::placeholder {
 
 .reel-stepper button:hover {
   border-color: #e0e0e1;
+}
+
+.reel-stepper button:disabled {
+  cursor: not-allowed;
+  opacity: 0.28;
+}
+
+.reel-stepper span {
+  color: #8f9094;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
 }
 
 @media (max-width: 520px) {

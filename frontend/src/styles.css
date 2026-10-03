@@ -465,6 +465,13 @@ input::placeholder {
   letter-spacing: 0.12em;
 }
 
+.app-step {
+  color: #9299b4;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
 .nav-links {
   display: flex;
   gap: 4px;

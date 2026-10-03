@@ -139,12 +139,8 @@ function App() {
 
       localStorage.setItem('bolt-token', result.data.token)
       setSelectedInterests(result.data.user.interests)
-      if (isSignup || result.data.user.interests.length < 3) {
-        setPendingUser(result.data.user)
-        setStep('interests')
-      } else {
-        setSessionUser(result.data.user)
-      }
+      setPendingUser(result.data.user)
+      setStep('interests')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to continue')
     } finally {
@@ -236,6 +232,7 @@ function App() {
       <main className="app-shell">
         <nav className="app-nav">
           <div className="app-brand"><span className="bolt-icon">✦</span> BOLT</div>
+          <span className="app-step">3 of 3 Steps</span>
           <div className="nav-links">
             {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => setActiveView(view)}>{label}</button>)}
           </div>

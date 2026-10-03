@@ -23,6 +23,9 @@ export interface LessonDocument {
   difficulty: LessonDifficulty
   visualKey: string
   relatedTopics: string[]
+  minAge?: number
+  maxAge?: number
+  gradeLevel?: string
 }
 
 const lessonSchema = new Schema<LessonDocument>(
@@ -36,6 +39,9 @@ const lessonSchema = new Schema<LessonDocument>(
     difficulty: { type: String, required: true, trim: true },
     visualKey: { type: String, required: true, trim: true },
     relatedTopics: { type: [String], required: true },
+    minAge: { type: Number, default: 6 },
+    maxAge: { type: Number, default: 99 },
+    gradeLevel: { type: String, default: 'All' },
   },
   { timestamps: true },
 )

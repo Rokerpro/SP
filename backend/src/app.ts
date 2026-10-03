@@ -19,9 +19,11 @@ app.post('/api/auth/signup', async (request, response) => {
   const displayName = typeof request.body.displayName === 'string' ? request.body.displayName.trim() : ''
   const password = typeof request.body.password === 'string' ? request.body.password : ''
   const confirmPassword = typeof request.body.confirmPassword === 'string' ? request.body.confirmPassword : ''
+  const age = Number(request.body.age)
+  const grade = typeof request.body.grade === 'string' && request.body.grade.trim() ? request.body.grade.trim() : 'General'
 
-  if (!email || !username || !displayName || password.length < 8 || password !== confirmPassword) {
-    response.status(400).json({ success: false, error: 'Complete all fields and make sure both passwords match' })
+  if (!email || !username || !displayName || !age || age < 5 || age > 120 || password.length < 8 || password !== confirmPassword) {
+    response.status(400).json({ success: false, error: 'Complete all fields, enter a valid age (5-120), and make sure passwords match' })
     return
   }
 
@@ -31,8 +33,8 @@ app.post('/api/auth/signup', async (request, response) => {
     return
   }
 
-  const user = await User.create({ email, username, displayName, passwordHash: await hashPassword(password) })
-  response.status(201).json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests } } })
+  const user = await User.create({ email, username, displayName, age, grade, passwordHash: await hashPassword(password), xp: 0, streak: 0, completedCount: 0 })
+  response.status(201).json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp, streak: user.streak, completedCount: user.completedCount } } })
 })
 
 app.post('/api/auth/login', async (request, response) => {
@@ -45,7 +47,7 @@ app.post('/api/auth/login', async (request, response) => {
     return
   }
 
-  response.json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests } } })
+  response.json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp ?? 0, streak: user.streak ?? 0, completedCount: user.completedCount ?? 0 } } })
 })
 
 app.get('/api/auth/me', requireAuth, async (request: AuthenticatedRequest, response) => {
@@ -56,7 +58,7 @@ app.get('/api/auth/me', requireAuth, async (request: AuthenticatedRequest, respo
     return
   }
 
-  response.json({ success: true, data: { id: user._id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests } })
+  response.json({ success: true, data: { id: user._id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp ?? 0, streak: user.streak ?? 0, completedCount: user.completedCount ?? 0 } })
 })
 
 app.put('/api/auth/interests', requireAuth, async (request: AuthenticatedRequest, response) => {
@@ -100,16 +102,58 @@ app.get('/api/feed', requireAuth, async (request: AuthenticatedRequest, response
   const user = await User.findById(request.userId).lean()
   const lessons = await Lesson.find().lean()
   const interests = user?.interests ?? []
-  lessons.sort((left, right) => Number(interests.includes(right.category)) - Number(interests.includes(left.category)))
-  response.json({ success: true, data: lessons })
+  const userAge = user?.age ?? 16
+  const userGrade = user?.grade ?? 'General'
+
+  const scoredLessons = lessons.map((lesson) => {
+    let score = 0
+    if (interests.includes(lesson.category)) score += 10
+    const minAge = lesson.minAge ?? 6
+    const maxAge = lesson.maxAge ?? 99
+    if (userAge >= minAge && userAge <= maxAge) score += 10
+    if (userAge < 13 && lesson.difficulty === 'Beginner') score += 15
+    if (userAge >= 13 && userAge <= 18 && (lesson.difficulty === 'Beginner' || lesson.difficulty === 'Intermediate')) score += 10
+    if (userAge > 18 && (lesson.difficulty === 'Intermediate' || lesson.difficulty === 'Advanced')) score += 10
+    if (lesson.gradeLevel === userGrade || lesson.gradeLevel === 'All') score += 5
+    return { lesson, score }
+  })
+
+  scoredLessons.sort((left, right) => right.score - left.score)
+  response.json({ success: true, data: scoredLessons.map((item) => item.lesson) })
+})
+
+app.get('/api/leaderboard', async (request, response) => {
+  const users = await User.find().select('username displayName age grade xp streak completedCount').sort({ xp: -1, completedCount: -1, createdAt: 1 }).limit(50).lean()
+  const leaderboard = users.map((user, index) => ({
+    rank: index + 1,
+    id: user._id,
+    username: user.username,
+    displayName: user.displayName,
+    age: user.age,
+    grade: user.grade,
+    xp: user.xp ?? 0,
+    streak: user.streak ?? 0,
+    completedCount: user.completedCount ?? 0,
+  }))
+
+  response.json({ success: true, data: leaderboard })
 })
 
 app.post('/api/progress/:lessonSlug', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const completed = Boolean(request.body.completed)
+  const existingProgress = await Progress.findOne({ userId: request.userId, lessonSlug: request.params.lessonSlug }).lean()
+  const isFirstCompletion = completed && (!existingProgress || !existingProgress.completed)
+
   const progress = await Progress.findOneAndUpdate(
     { userId: request.userId, lessonSlug: request.params.lessonSlug },
-    { userId: request.userId, lessonSlug: request.params.lessonSlug, completed: Boolean(request.body.completed), viewedAt: new Date() },
+    { userId: request.userId, lessonSlug: request.params.lessonSlug, completed, viewedAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean()
+
+  if (isFirstCompletion) {
+    await User.findByIdAndUpdate(request.userId, { $inc: { xp: 50, completedCount: 1 } })
+  }
+
   response.json({ success: true, data: progress })
 })
 
@@ -173,6 +217,9 @@ app.post('/api/quizzes/:lessonSlug/attempt', requireAuth, async (request: Authen
   }
   const correct = answer === quiz.answer
   await QuizAttempt.create({ userId: request.userId, lessonSlug, answer, correct })
+  if (correct) {
+    await User.findByIdAndUpdate(request.userId, { $inc: { xp: 100 } })
+  }
   response.json({ success: true, data: { correct, explanation: quiz.explanation } })
 })
 

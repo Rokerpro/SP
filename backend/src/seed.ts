@@ -42,9 +42,9 @@ const lessons: LessonDocument[] = [
 ]
 
 const demoProfiles = [
-  { email: 'alex@bolt.demo', username: 'alexbolt', displayName: 'Alex M.', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'] },
-  { email: 'maya@bolt.demo', username: 'mayabolt', displayName: 'Maya R.', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'] },
-  { email: 'sam@bolt.demo', username: 'sambolt', displayName: 'Sam T.', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'] },
+  { email: 'alex@bolt.demo', username: 'alexbolt', displayName: 'Alex M.', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'], age: 16, grade: 'Grade 9-12', xp: 1250, streak: 5, completedCount: 12 },
+  { email: 'maya@bolt.demo', username: 'mayabolt', displayName: 'Maya R.', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'], age: 20, grade: 'College / Adult', xp: 2400, streak: 9, completedCount: 22 },
+  { email: 'sam@bolt.demo', username: 'sambolt', displayName: 'Sam T.', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'], age: 14, grade: 'Grade 6-8', xp: 850, streak: 3, completedCount: 8 },
 ]
 
 const quizzes: QuizDocument[] = [
@@ -70,6 +70,11 @@ await User.insertMany(await Promise.all(demoProfiles.map(async (profile) => ({
   displayName: profile.displayName,
   passwordHash: await hashPassword(profile.password),
   interests: profile.interests,
+  age: profile.age,
+  grade: profile.grade,
+  xp: profile.xp,
+  streak: profile.streak,
+  completedCount: profile.completedCount,
 }))))
 console.log(`Seeded ${demoProfiles.length} demo profiles`)
 await disconnectDatabase()

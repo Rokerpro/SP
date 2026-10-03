@@ -1,12 +1,283 @@
 @import "tailwindcss";
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   color-scheme: dark;
-  background: #020617;
+  background: #0b0c10;
+  color: #f5f5f7;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  padding: 36px 20px 48px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(115, 127, 184, 0.11), transparent 35%),
+    #0b0c10;
+}
+
+.auth-layout {
+  width: min(100%, 448px);
+  margin: 0 auto;
+}
+
+.auth-header {
+  text-align: center;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 21px;
+  border-radius: 14px;
+  background: #b9c8ff;
+  color: #0d101b;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.bolt-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.auth-header h1 {
+  margin: 26px 0 8px;
+  font-size: clamp(2rem, 7vw, 2.55rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.auth-header p {
+  margin: 0;
+  color: #9ca4c5;
+  font-size: 0.73rem;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+}
+
+.progress-track {
+  width: min(100%, 320px);
+  height: 8px;
+  margin: 28px auto 7px;
+  overflow: hidden;
+  border: 1px solid #2d3040;
+  border-radius: 999px;
+  background: #1a1c27;
+}
+
+.progress-fill {
+  display: block;
+  width: 66.666%;
+  height: 100%;
+  border-radius: inherit;
+  background: #b9c8ff;
+}
+
+.progress-fill.signup {
+  width: 33.333%;
+}
+
+.auth-header small {
+  color: #b0b5ce;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.auth-card {
+  margin-top: 27px;
+  padding: 34px 32px 22px;
+  border: 1px solid #303340;
+  border-radius: 20px;
+  background: #191b24;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.card-heading h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.card-heading p {
+  margin: 7px 0 0;
+  color: #9ea4bd;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.back-button {
+  border: 0;
+  background: transparent;
+  color: #9da4bf;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  color: #b9c8ff;
+}
+
+.card-rule {
+  height: 1px;
+  margin: 18px 0 26px;
+  background: #2b2e39;
+}
+
+form {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  margin-top: 2px;
+  color: #b5bbd2;
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  margin-bottom: 7px;
+  border: 1px solid #343746;
+  border-radius: 11px;
+  background: #0f1118;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input-wrap:focus-within {
+  border-color: #aebdff;
+  box-shadow: 0 0 0 3px rgba(174, 189, 255, 0.12);
+}
+
+.field-icon {
+  width: 43px;
+  color: #9299b4;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.lock-icon {
+  font-size: 1.25rem;
+}
+
+input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f7f7fa;
+  font-size: 0.86rem;
+}
+
+input::placeholder {
+  color: #777d94;
+}
+
+.visibility-button {
+  width: 43px;
+  border: 0;
+  background: transparent;
+  color: #858ca7;
+  font-size: 1.1rem;
+}
+
+.visibility-button:hover,
+.visibility-button:focus-visible {
+  color: #b9c8ff;
+}
+
+.submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 51px;
+  margin-top: 9px;
+  border: 0;
+  border-radius: 10px;
+  background: #b9c8ff;
+  color: #0c101a;
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.submit-button:hover {
+  background: #cad5ff;
+  transform: translateY(-1px);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+.switch-mode {
+  margin: 22px 0 0;
+  color: #9fa6c0;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.switch-mode button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #c0ceff;
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.switch-mode button:hover,
+.switch-mode button:focus-visible {
+  color: #e0e6ff;
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .auth-shell {
+    padding: 28px 16px 32px;
+  }
+
+  .auth-card {
+    padding: 28px 20px 21px;
+  }
+
+  .auth-header h1 {
+    margin-top: 22px;
+  }
 }

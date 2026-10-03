@@ -54,7 +54,7 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 }
 
 function App() {
-  const [mode, setMode] = useState<'login' | 'signup'>('signup')
+  const [mode, setMode] = useState<'login' | 'signup'>(window.location.pathname.startsWith('/login') ? 'login' : 'signup')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [email, setEmail] = useState('')
@@ -62,7 +62,7 @@ function App() {
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [step, setStep] = useState<SignupStep>('auth')
+  const [step, setStep] = useState<SignupStep>(window.location.pathname === '/signup/interests' ? 'interests' : window.location.pathname === '/signup/people' ? 'people' : 'auth')
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [peopleQuery, setPeopleQuery] = useState('')
   const [selectedPeople, setSelectedPeople] = useState<string[]>([])
@@ -91,18 +91,28 @@ function App() {
     return 'home'
   }
 
+  function authModeFromPath(path: string): 'login' | 'signup' {
+    return path.startsWith('/login') ? 'login' : 'signup'
+  }
+
   function navigateToView(view: HomeView) {
     window.history.pushState({}, '', view === 'home' ? '/home' : `/${view}`)
     setActiveView(view)
   }
 
   useEffect(() => {
-    const handlePopState = () => setActiveView(viewFromPath(window.location.pathname))
+    const handlePopState = () => {
+      const path = window.location.pathname
+      setMode(authModeFromPath(path))
+      setStep(path === '/signup/interests' ? 'interests' : path === '/signup/people' ? 'people' : 'auth')
+      setActiveView(viewFromPath(path))
+    }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
   useEffect(() => {
+    if (window.location.pathname === '/') window.history.replaceState({}, '', '/signup')
     const token = localStorage.getItem('bolt-token')
     if (!token) return
 
@@ -137,6 +147,7 @@ function App() {
   }, [sessionUser])
 
   function switchMode(nextMode: 'login' | 'signup') {
+    window.history.pushState({}, '', nextMode === 'login' ? '/login' : '/signup')
     setMode(nextMode)
     setError('')
     setEmail('')
@@ -172,6 +183,7 @@ function App() {
       setSelectedInterests(result.data.user.interests)
       if (isSignup) {
         setPendingUser(result.data.user)
+        window.history.pushState({}, '', '/signup/interests')
         setStep('interests')
       } else {
         navigateToView('home')
@@ -198,6 +210,7 @@ function App() {
       const result = await response.json() as { success: boolean; error?: string }
       if (!response.ok || !result.success) throw new Error(result.error ?? 'Unable to save interests')
       setPendingUser((current) => current ? { ...current, interests: selectedInterests } : current)
+      window.history.pushState({}, '', '/signup/people')
       setStep('people')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to save interests')

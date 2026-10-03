@@ -13,6 +13,14 @@ export type LessonCategory =
 
 export type LessonDifficulty = 'Beginner' | 'Intermediate' | 'Advanced'
 
+export interface LessonQuestion {
+  id: string
+  question: string
+  options: string[]
+  answer: number
+  explanation: string
+}
+
 export interface LessonDocument {
   slug: string
   category: LessonCategory
@@ -26,6 +34,12 @@ export interface LessonDocument {
   minAge?: number
   maxAge?: number
   gradeLevel?: string
+  mediaType?: 'text' | 'video'
+  videoUrl?: string
+  authorId?: string
+  authorName?: string
+  status?: 'approved' | 'pending' | 'rejected'
+  questions?: LessonQuestion[]
 }
 
 const lessonSchema = new Schema<LessonDocument>(
@@ -42,6 +56,12 @@ const lessonSchema = new Schema<LessonDocument>(
     minAge: { type: Number, default: 6 },
     maxAge: { type: Number, default: 99 },
     gradeLevel: { type: String, default: 'All' },
+    mediaType: { type: String, enum: ['text', 'video'], default: 'text' },
+    videoUrl: { type: String, default: '' },
+    authorId: { type: String, default: '' },
+    authorName: { type: String, default: '' },
+    status: { type: String, enum: ['approved', 'pending', 'rejected'], default: 'approved' },
+    questions: { type: [Schema.Types.Mixed], default: [] },
   },
   { timestamps: true },
 )

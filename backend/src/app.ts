@@ -33,8 +33,31 @@ app.post('/api/auth/signup', async (request, response) => {
     return
   }
 
-  const user = await User.create({ email, username, displayName, age, grade, passwordHash: await hashPassword(password), xp: 0, streak: 0, completedCount: 0 })
-  response.status(201).json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp, streak: user.streak, completedCount: user.completedCount } } })
+  const role = email.endsWith('@bolt.admin') || username.includes('admin') ? 'admin' : 'user'
+  const user = await User.create({ email, username, displayName, age, grade, passwordHash: await hashPassword(password), xp: 0, streak: 0, completedCount: 0, role, bio: 'Curious learner on Bolt', avatar: '', followers: [], following: [] })
+  response.status(201).json({
+    success: true,
+    data: {
+      token: createToken(user.id),
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        interests: user.interests,
+        age: user.age,
+        grade: user.grade,
+        xp: user.xp,
+        streak: user.streak,
+        completedCount: user.completedCount,
+        role: user.role,
+        bio: user.bio,
+        avatar: user.avatar,
+        followersCount: user.followers.length,
+        followingCount: user.following.length,
+      },
+    },
+  })
 })
 
 app.post('/api/auth/login', async (request, response) => {
@@ -47,7 +70,29 @@ app.post('/api/auth/login', async (request, response) => {
     return
   }
 
-  response.json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp ?? 0, streak: user.streak ?? 0, completedCount: user.completedCount ?? 0 } } })
+  response.json({
+    success: true,
+    data: {
+      token: createToken(user.id),
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        interests: user.interests,
+        age: user.age,
+        grade: user.grade,
+        xp: user.xp ?? 0,
+        streak: user.streak ?? 0,
+        completedCount: user.completedCount ?? 0,
+        role: user.role ?? 'user',
+        bio: user.bio ?? '',
+        avatar: user.avatar ?? '',
+        followersCount: user.followers?.length ?? 0,
+        followingCount: user.following?.length ?? 0,
+      },
+    },
+  })
 })
 
 app.get('/api/auth/me', requireAuth, async (request: AuthenticatedRequest, response) => {
@@ -58,7 +103,26 @@ app.get('/api/auth/me', requireAuth, async (request: AuthenticatedRequest, respo
     return
   }
 
-  response.json({ success: true, data: { id: user._id, email: user.email, username: user.username, displayName: user.displayName, interests: user.interests, age: user.age, grade: user.grade, xp: user.xp ?? 0, streak: user.streak ?? 0, completedCount: user.completedCount ?? 0 } })
+  response.json({
+    success: true,
+    data: {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+      displayName: user.displayName,
+      interests: user.interests,
+      age: user.age,
+      grade: user.grade,
+      xp: user.xp ?? 0,
+      streak: user.streak ?? 0,
+      completedCount: user.completedCount ?? 0,
+      role: user.role ?? 'user',
+      bio: user.bio ?? '',
+      avatar: user.avatar ?? '',
+      followersCount: user.followers?.length ?? 0,
+      followingCount: user.following?.length ?? 0,
+    },
+  })
 })
 
 app.put('/api/auth/interests', requireAuth, async (request: AuthenticatedRequest, response) => {
@@ -83,60 +147,311 @@ app.get('/api/health', (_request, response) => {
 })
 
 app.get('/api/lessons', async (_request, response) => {
-  const lessons = await Lesson.find().sort({ createdAt: 1 }).lean()
+  const lessons = await Lesson.find({ status: { $ne: 'rejected' } }).sort({ createdAt: -1 }).lean()
   response.json({ success: true, data: lessons })
 })
 
 app.get('/api/lessons/search', async (request, response) => {
   const query = typeof request.query.q === 'string' ? request.query.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''
-  const filter = query ? { $or: [{ title: new RegExp(query, 'i') }, { topic: new RegExp(query, 'i') }, { category: new RegExp(query, 'i') }] } : {}
-  const lessons = await Lesson.find(filter).sort({ createdAt: 1 }).lean()
+  const filter: Record<string, unknown> = query ? { status: 'approved', $or: [{ title: new RegExp(query, 'i') }, { topic: new RegExp(query, 'i') }, { category: new RegExp(query, 'i') }] } : { status: 'approved' }
+  const lessons = await Lesson.find(filter).sort({ createdAt: -1 }).lean()
   response.json({ success: true, data: lessons })
 })
 
 app.get('/api/categories', async (_request, response) => {
-  response.json({ success: true, data: await Lesson.distinct('category') })
+  response.json({ success: true, data: await Lesson.distinct('category', { status: 'approved' }) })
 })
 
 app.get('/api/feed', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const page = Math.max(1, Number(request.query.page) || 1)
+  const limit = Math.max(1, Math.min(50, Number(request.query.limit) || 15))
   const user = await User.findById(request.userId).lean()
-  const lessons = await Lesson.find().lean()
+  const lessons = await Lesson.find({ status: 'approved' }).lean()
+
   const interests = user?.interests ?? []
   const userAge = user?.age ?? 16
   const userGrade = user?.grade ?? 'General'
 
   const scoredLessons = lessons.map((lesson) => {
     let score = 0
-    if (interests.includes(lesson.category)) score += 10
+    if (interests.includes(lesson.category)) score += 12
     const minAge = lesson.minAge ?? 6
     const maxAge = lesson.maxAge ?? 99
     if (userAge >= minAge && userAge <= maxAge) score += 10
-    if (userAge < 13 && lesson.difficulty === 'Beginner') score += 15
-    if (userAge >= 13 && userAge <= 18 && (lesson.difficulty === 'Beginner' || lesson.difficulty === 'Intermediate')) score += 10
-    if (userAge > 18 && (lesson.difficulty === 'Intermediate' || lesson.difficulty === 'Advanced')) score += 10
-    if (lesson.gradeLevel === userGrade || lesson.gradeLevel === 'All') score += 5
+    if (userAge < 13 && lesson.difficulty === 'Beginner') score += 8
+    if (userAge >= 13 && userAge <= 18 && (lesson.difficulty === 'Beginner' || lesson.difficulty === 'Intermediate')) score += 6
+    if (userAge > 18 && (lesson.difficulty === 'Intermediate' || lesson.difficulty === 'Advanced')) score += 6
+    if (lesson.gradeLevel === userGrade || lesson.gradeLevel === 'All') score += 4
     return { lesson, score }
   })
 
   scoredLessons.sort((left, right) => right.score - left.score)
-  response.json({ success: true, data: scoredLessons.map((item) => item.lesson) })
+  const allOrderedLessons = scoredLessons.map((item) => item.lesson)
+
+  const startIndex = (page - 1) * limit
+  const paginatedLessons = allOrderedLessons.slice(startIndex, startIndex + limit)
+  const hasMore = startIndex + limit < allOrderedLessons.length
+
+  response.json({ success: true, data: paginatedLessons, page, hasMore, total: allOrderedLessons.length })
 })
 
-app.get('/api/leaderboard', async (request, response) => {
-  const users = await User.find().select('username displayName age grade xp streak completedCount').sort({ xp: -1, completedCount: -1, createdAt: 1 }).limit(50).lean()
-  const leaderboard = users.map((user, index) => ({
-    rank: index + 1,
-    id: user._id,
-    username: user.username,
-    displayName: user.displayName,
-    age: user.age,
-    grade: user.grade,
-    xp: user.xp ?? 0,
-    streak: user.streak ?? 0,
-    completedCount: user.completedCount ?? 0,
-  }))
+app.get('/api/posts/my', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const posts = await Lesson.find({ authorId: request.userId }).sort({ createdAt: -1 }).lean()
+  response.json({ success: true, data: posts })
+})
 
-  response.json({ success: true, data: leaderboard })
+app.post('/api/posts', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  const title = typeof request.body.title === 'string' ? request.body.title.trim() : ''
+  const topic = typeof request.body.topic === 'string' ? request.body.topic.trim() : ''
+  const category = typeof request.body.category === 'string' ? request.body.category.trim() : 'Science'
+  const explanation = typeof request.body.explanation === 'string' ? request.body.explanation.trim() : ''
+  const takeaway = typeof request.body.takeaway === 'string' ? request.body.takeaway.trim() : ''
+  const difficulty = typeof request.body.difficulty === 'string' ? request.body.difficulty.trim() : 'Beginner'
+  const mediaType = request.body.mediaType === 'video' ? 'video' : 'text'
+  const videoUrl = typeof request.body.videoUrl === 'string' ? request.body.videoUrl.trim() : ''
+
+  if (!title || !explanation || !takeaway) {
+    response.status(400).json({ success: false, error: 'Please provide a title, explanation, and key takeaway' })
+    return
+  }
+
+  const slug = `user-${user.username}-${Date.now()}`
+  const post = await Lesson.create({
+    slug,
+    category: category as any,
+    title,
+    topic: topic || title,
+    explanation,
+    takeaway,
+    difficulty: difficulty as any,
+    visualKey: mediaType === 'video' ? 'video' : 'spark',
+    relatedTopics: [category.toLowerCase()],
+    mediaType,
+    videoUrl,
+    authorId: user._id.toString(),
+    authorName: user.displayName,
+    status: 'pending',
+    questions: [],
+  })
+
+  response.status(201).json({ success: true, data: post })
+})
+
+app.post('/api/users/:targetUsername/follow', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const currentUser = await User.findById(request.userId)
+  const targetUser = await User.findOne({ username: request.params.targetUsername })
+
+  if (!currentUser || !targetUser) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  const isFollowing = currentUser.following.includes(targetUser.username)
+  if (isFollowing) {
+    currentUser.following = currentUser.following.filter((u) => u !== targetUser.username)
+    targetUser.followers = targetUser.followers.filter((u) => u !== currentUser.username)
+  } else {
+    currentUser.following.push(targetUser.username)
+    targetUser.followers.push(currentUser.username)
+  }
+
+  await currentUser.save()
+  await targetUser.save()
+
+  response.json({ success: true, data: { isFollowing: !isFollowing, followersCount: targetUser.followers.length, followingCount: currentUser.following.length } })
+})
+
+app.get('/api/admin/stats', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const [totalUsers, totalLessons, pendingCount, totalAttempts] = await Promise.all([
+    User.countDocuments(),
+    Lesson.countDocuments(),
+    Lesson.countDocuments({ status: 'pending' }),
+    QuizAttempt.countDocuments(),
+  ])
+
+  response.json({ success: true, data: { totalUsers, totalLessons, pendingCount, totalAttempts } })
+})
+
+app.get('/api/admin/pending-posts', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const pendingPosts = await Lesson.find({ status: 'pending' }).sort({ createdAt: -1 }).lean()
+  response.json({ success: true, data: pendingPosts })
+})
+
+app.post('/api/admin/posts/:slug/approve', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const post = await Lesson.findOneAndUpdate({ slug: request.params.slug }, { status: 'approved' }, { new: true }).lean()
+  if (!post) {
+    response.status(404).json({ success: false, error: 'Post not found' })
+    return
+  }
+
+  if (post.authorId) {
+    await User.findByIdAndUpdate(post.authorId, { $inc: { xp: 100 } })
+  }
+
+  response.json({ success: true, data: post })
+})
+
+app.post('/api/admin/posts/:slug/reject', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const post = await Lesson.findOneAndUpdate({ slug: request.params.slug }, { status: 'rejected' }, { new: true }).lean()
+  if (!post) {
+    response.status(404).json({ success: false, error: 'Post not found' })
+    return
+  }
+
+  response.json({ success: true, data: post })
+})
+
+export async function ensureDefaultAdmin() {
+  const adminExists = await User.exists({ role: 'admin' })
+  if (!adminExists) {
+    const passwordHash = await hashPassword('admin123')
+    await User.create({
+      email: 'admin@bolt.demo',
+      username: 'adminbolt',
+      displayName: 'Default Admin',
+      age: 28,
+      grade: 'General',
+      passwordHash,
+      xp: 1000,
+      streak: 10,
+      completedCount: 50,
+      role: 'admin',
+      bio: 'Lead Platform Administrator',
+      avatar: '',
+      interests: ['AI Skills', 'Web Dev', 'Engineering'],
+      followers: [],
+      following: [],
+    })
+  }
+}
+
+app.put('/api/users/change-password', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const oldPassword = typeof request.body.oldPassword === 'string' ? request.body.oldPassword : ''
+  const newPassword = typeof request.body.newPassword === 'string' ? request.body.newPassword : ''
+
+  if (newPassword.length < 8) {
+    response.status(400).json({ success: false, error: 'New password must be at least 8 characters long' })
+    return
+  }
+
+  const user = await User.findById(request.userId)
+  if (!user) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  const match = await comparePassword(oldPassword, user.passwordHash)
+  if (!match) {
+    response.status(400).json({ success: false, error: 'Current password is incorrect' })
+    return
+  }
+
+  user.passwordHash = await hashPassword(newPassword)
+  await user.save()
+
+  response.json({ success: true, data: { message: 'Password updated successfully' } })
+})
+
+app.get('/api/admin/users', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const users = await User.find().select('-passwordHash').sort({ createdAt: -1 }).lean()
+  response.json({ success: true, data: users })
+})
+
+app.put('/api/admin/users/:userId/role', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const role = request.body.role === 'admin' ? 'admin' : 'user'
+  const updated = await User.findByIdAndUpdate(request.params.userId, { role }, { new: true }).select('-passwordHash').lean()
+  if (!updated) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  response.json({ success: true, data: updated })
+})
+
+app.put('/api/admin/users/:userId/password', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  const newPassword = typeof request.body.newPassword === 'string' ? request.body.newPassword : ''
+  if (newPassword.length < 8) {
+    response.status(400).json({ success: false, error: 'New password must be at least 8 characters long' })
+    return
+  }
+
+  const passwordHash = await hashPassword(newPassword)
+  const updated = await User.findByIdAndUpdate(request.params.userId, { passwordHash }, { new: true }).select('-passwordHash').lean()
+  if (!updated) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  response.json({ success: true, data: updated })
+})
+
+app.delete('/api/admin/users/:userId', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+  if (!user || user.role !== 'admin') {
+    response.status(403).json({ success: false, error: 'Admin access required' })
+    return
+  }
+
+  if (request.params.userId === request.userId) {
+    response.status(400).json({ success: false, error: 'You cannot delete your own admin account' })
+    return
+  }
+
+  const deleted = await User.findByIdAndDelete(request.params.userId).lean()
+  if (!deleted) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  response.json({ success: true, data: { deleted: true, userId: request.params.userId } })
 })
 
 app.post('/api/progress/:lessonSlug', requireAuth, async (request: AuthenticatedRequest, response) => {

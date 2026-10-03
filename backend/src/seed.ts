@@ -6,54 +6,152 @@ import { Quiz, type QuizDocument } from './models/quiz.js'
 import { User } from './models/user.js'
 
 const lessons: LessonDocument[] = [
-  { slug: 'sky-blue', category: 'Science', title: 'Why is the sky blue?', topic: 'Light scattering', explanation: 'Air molecules scatter short blue wavelengths of sunlight more strongly than long red wavelengths, spreading blue light across the daytime sky.', takeaway: 'Blue light gets scattered most by the atmosphere.', difficulty: 'Beginner', visualKey: 'prism', relatedTopics: ['light', 'atmosphere', 'color'] },
-  { slug: 'vaccines-memory', category: 'Science', title: 'How vaccines train immunity', topic: 'Immune memory', explanation: 'A vaccine safely shows the immune system a recognizable feature of a pathogen, allowing memory cells to respond faster during a later encounter.', takeaway: 'Immune memory makes a second response faster and stronger.', difficulty: 'Beginner', visualKey: 'shield', relatedTopics: ['cells', 'health', 'biology'] },
-  { slug: 'planes-fly', category: 'Science', title: 'Why planes can fly', topic: 'Lift', explanation: 'A wing changes the airflow around it, creating a pressure difference and redirecting air downward. The matching upward force is lift.', takeaway: 'Lift is the upward force created by a wing moving through air.', difficulty: 'Beginner', visualKey: 'wing', relatedTopics: ['forces', 'motion', 'engineering'] },
-  { slug: 'photosynthesis', category: 'Science', title: 'How plants make food', topic: 'Photosynthesis', explanation: 'Plants use light energy to combine water and carbon dioxide into sugar, releasing oxygen as a byproduct.', takeaway: 'Photosynthesis turns light energy into stored chemical energy.', difficulty: 'Beginner', visualKey: 'leaf', relatedTopics: ['plants', 'energy', 'carbon'] },
-  { slug: 'black-holes', category: 'Space', title: 'How black holes work', topic: 'Gravity', explanation: 'When enough mass is compressed into a small space, gravity becomes so strong that beyond the event horizon even light cannot escape.', takeaway: 'A black hole is defined by an escape boundary, not by being a cosmic vacuum.', difficulty: 'Intermediate', visualKey: 'orbit', relatedTopics: ['gravity', 'stars', 'space-time'] },
-  { slug: 'solar-system-order', category: 'Space', title: 'The order of our planets', topic: 'Solar system', explanation: 'Starting at the Sun, the planets are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.', takeaway: 'The inner planets are rocky; the outer planets are much larger and mostly gaseous or icy.', difficulty: 'Beginner', visualKey: 'planets', relatedTopics: ['orbits', 'astronomy', 'Earth'] },
-  { slug: 'star-colors', category: 'Space', title: 'What star color tells us', topic: 'Stellar temperature', explanation: 'A star’s surface temperature changes the color of its light. Blue-white stars are hotter than orange or red stars.', takeaway: 'Blue stars are hotter than red stars.', difficulty: 'Beginner', visualKey: 'star', relatedTopics: ['light', 'temperature', 'stars'] },
-  { slug: 'exoplanets', category: 'Space', title: 'How we find distant planets', topic: 'Transit method', explanation: 'When a planet crosses in front of its star, it blocks a tiny amount of starlight. Repeated dips reveal the planet’s orbit.', takeaway: 'A repeating dip in starlight can reveal a planet we cannot see directly.', difficulty: 'Intermediate', visualKey: 'telescope', relatedTopics: ['stars', 'orbits', 'telescopes'] },
-  { slug: 'binary', category: 'Technology', title: 'Why computers use binary', topic: 'Binary numbers', explanation: 'Electronic circuits can reliably distinguish two voltage states, so computers represent information with combinations of 0 and 1.', takeaway: 'Binary fits the two stable states of digital circuits.', difficulty: 'Beginner', visualKey: 'code', relatedTopics: ['logic', 'circuits', 'data'] },
-  { slug: 'internet-packets', category: 'Technology', title: 'How data crosses the internet', topic: 'Packets', explanation: 'Large messages are split into small packets that travel through network routers and are reassembled at their destination.', takeaway: 'The internet moves many small packets rather than one continuous message.', difficulty: 'Beginner', visualKey: 'network', relatedTopics: ['routers', 'web', 'protocols'] },
-  { slug: 'encryption-keys', category: 'Technology', title: 'What encryption keys do', topic: 'Encryption', explanation: 'An encryption key controls a mathematical transformation that scrambles readable data. The matching key or process reverses it.', takeaway: 'A key is the secret input that controls how data is locked or unlocked.', difficulty: 'Intermediate', visualKey: 'key', relatedTopics: ['privacy', 'security', 'math'] },
-  { slug: 'solar-panels', category: 'Technology', title: 'How solar panels make electricity', topic: 'Photovoltaic effect', explanation: 'Photons from sunlight transfer energy to electrons in a semiconductor, creating an electric current that can be collected by a circuit.', takeaway: 'Solar cells convert light energy into moving electrical charge.', difficulty: 'Beginner', visualKey: 'sun-panel', relatedTopics: ['energy', 'semiconductors', 'sustainability'] },
-  { slug: 'compound-interest', category: 'Mathematics', title: 'Why compound interest matters', topic: 'Exponential growth', explanation: 'Compound interest adds growth to the original amount and to earlier growth, so the base gets larger over time.', takeaway: 'Growth can accelerate when each period builds on the last.', difficulty: 'Beginner', visualKey: 'growth', relatedTopics: ['money', 'percentages', 'planning'] },
-  { slug: 'prime-numbers', category: 'Mathematics', title: 'What makes a number prime', topic: 'Prime numbers', explanation: 'A prime number is greater than one and has exactly two positive factors: one and itself.', takeaway: 'Primes are the indivisible building blocks of whole numbers.', difficulty: 'Beginner', visualKey: 'numbers', relatedTopics: ['factors', 'patterns', 'cryptography'] },
-  { slug: 'probability-basics', category: 'Mathematics', title: 'What probability measures', topic: 'Probability', explanation: 'Probability measures how likely an event is, from impossible at zero to certain at one.', takeaway: 'Probability describes likelihood, not what must happen next.', difficulty: 'Beginner', visualKey: 'dice', relatedTopics: ['statistics', 'uncertainty', 'odds'] },
-  { slug: 'pythagorean-theorem', category: 'Mathematics', title: 'The right-triangle shortcut', topic: 'Pythagorean theorem', explanation: 'For a right triangle, the square of the longest side equals the sum of the squares of the other two sides: a² + b² = c².', takeaway: 'The theorem connects the three side lengths of every right triangle.', difficulty: 'Intermediate', visualKey: 'triangle', relatedTopics: ['geometry', 'distance', 'proofs'] },
-  { slug: 'loss-aversion', category: 'Psychology', title: 'Why losses feel larger', topic: 'Loss aversion', explanation: 'People often experience the pain of losing something more strongly than the pleasure of gaining an equal thing.', takeaway: 'The same amount can feel different depending on whether it is gained or lost.', difficulty: 'Beginner', visualKey: 'balance', relatedTopics: ['decisions', 'behavior', 'money'] },
-  { slug: 'spacing-effect', category: 'Psychology', title: 'Why spaced practice works', topic: 'Spacing effect', explanation: 'Reviewing information across separate sessions gives memory repeated chances to retrieve and rebuild the idea.', takeaway: 'Short, spread-out reviews usually beat one long cram session.', difficulty: 'Beginner', visualKey: 'calendar', relatedTopics: ['memory', 'learning', 'habits'] },
-  { slug: 'placebo-effect', category: 'Psychology', title: 'What the placebo effect shows', topic: 'Expectations', explanation: 'Expectations about a treatment can change how a person experiences symptoms, even when the treatment has no active ingredient.', takeaway: 'Beliefs can influence experience, but they do not replace active medical treatment.', difficulty: 'Intermediate', visualKey: 'mind', relatedTopics: ['health', 'expectations', 'experiments'] },
-  { slug: 'confirmation-bias', category: 'Psychology', title: 'The filter of confirmation bias', topic: 'Bias', explanation: 'Confirmation bias makes people notice and remember evidence that supports an existing belief more readily than evidence that challenges it.', takeaway: 'A strong belief can change which evidence gets your attention.', difficulty: 'Beginner', visualKey: 'lens', relatedTopics: ['thinking', 'evidence', 'decisions'] },
-  { slug: 'printing-press', category: 'History', title: 'Why the printing press changed history', topic: 'Mass communication', explanation: 'Movable type made written material faster and cheaper to reproduce, helping ideas spread beyond small groups of scribes.', takeaway: 'Lower copying costs widened access to information.', difficulty: 'Beginner', visualKey: 'press', relatedTopics: ['books', 'culture', 'media'] },
-  { slug: 'silk-road', category: 'History', title: 'What the Silk Road connected', topic: 'Trade networks', explanation: 'The Silk Road was a network of land and sea routes linking communities across Asia, Europe, and North Africa.', takeaway: 'Trade routes carried ideas, technologies, religions, and diseases along with goods.', difficulty: 'Beginner', visualKey: 'route', relatedTopics: ['trade', 'maps', 'cultures'] },
-  { slug: 'industrial-revolution', category: 'History', title: 'What powered industrialization', topic: 'Industrial Revolution', explanation: 'Machines, concentrated factories, fossil fuels, and expanding transport changed how goods were made and where people worked.', takeaway: 'Industrialization combined new energy sources with new production systems.', difficulty: 'Intermediate', visualKey: 'factory', relatedTopics: ['energy', 'labor', 'invention'] },
-  { slug: 'democracy-separation', category: 'History', title: 'Why power is separated', topic: 'Checks and balances', explanation: 'Separating government powers lets different institutions limit one another and reduces the chance that one group controls every decision.', takeaway: 'Distributed power creates opportunities for oversight.', difficulty: 'Beginner', visualKey: 'columns', relatedTopics: ['government', 'rights', 'civics'] },
-  { slug: 'carbon-footprint', category: 'Environment', title: 'What a carbon footprint means', topic: 'Emissions', explanation: 'A carbon footprint estimates the greenhouse gas emissions linked to an activity, product, person, or organization.', takeaway: 'It tracks climate impact across a chain of activities, not just visible smoke.', difficulty: 'Beginner', visualKey: 'footprint', relatedTopics: ['climate', 'energy', 'choices'] },
-  { slug: 'renewable-energy', category: 'Environment', title: 'Renewable versus non-renewable energy', topic: 'Energy sources', explanation: 'Renewable sources replenish on human timescales, while non-renewable fuels form so slowly that using them consumes a finite supply.', takeaway: 'The key difference is how quickly nature replaces the resource.', difficulty: 'Beginner', visualKey: 'energy', relatedTopics: ['solar', 'fuel', 'climate'] },
-  { slug: 'food-waste', category: 'Environment', title: 'Why food waste matters', topic: 'Food systems', explanation: 'Wasted food also wastes the land, water, energy, and labor used to produce it, while decomposition can release methane.', takeaway: 'Preventing waste avoids impacts before disposal begins.', difficulty: 'Beginner', visualKey: 'food', relatedTopics: ['water', 'farming', 'methane'] },
-  { slug: 'water-cycle', category: 'Environment', title: 'The water cycle keeps moving', topic: 'Water cycle', explanation: 'Water continuously evaporates, condenses, falls as precipitation, and flows or filters back into bodies of water and groundwater.', takeaway: 'Fresh water is reused through a continuous planetary cycle.', difficulty: 'Beginner', visualKey: 'droplet', relatedTopics: ['weather', 'climate', 'rivers'] },
-  { slug: 'metaphor', category: 'Literature', title: 'How metaphors create meaning', topic: 'Metaphor', explanation: 'A metaphor describes one thing through another, inviting the reader to transfer qualities between the two ideas.', takeaway: 'Metaphors make abstract ideas easier to feel or picture.', difficulty: 'Beginner', visualKey: 'spark', relatedTopics: ['language', 'poetry', 'imagery'] },
-  { slug: 'unreliable-narrator', category: 'Literature', title: 'When a narrator cannot be trusted', topic: 'Narrative voice', explanation: 'An unreliable narrator gives an account shaped by limited knowledge, bias, deception, or confusion, so readers must interpret beyond the words.', takeaway: 'The narrator’s version of events may not be the whole truth.', difficulty: 'Intermediate', visualKey: 'mask', relatedTopics: ['fiction', 'perspective', 'plot'] },
-  { slug: 'supply-and-demand', category: 'Economics', title: 'How supply and demand meet', topic: 'Markets', explanation: 'Prices tend to move toward a point where the amount sellers offer matches the amount buyers want at that price.', takeaway: 'Price is a signal that coordinates what buyers and sellers do.', difficulty: 'Beginner', visualKey: 'scales', relatedTopics: ['prices', 'trade', 'markets'] },
-  { slug: 'opportunity-cost', category: 'Economics', title: 'The cost of choosing one thing', topic: 'Opportunity cost', explanation: 'The opportunity cost of a choice is the value of the best alternative you give up by making it.', takeaway: 'Every choice uses time or resources that could have gone elsewhere.', difficulty: 'Beginner', visualKey: 'fork', relatedTopics: ['decisions', 'time', 'tradeoffs'] },
-  { slug: 'inflation', category: 'Economics', title: 'What inflation changes', topic: 'Purchasing power', explanation: 'Inflation is a broad rise in prices that means each unit of currency buys fewer goods and services than before.', takeaway: 'Inflation reduces purchasing power when income does not keep pace.', difficulty: 'Beginner', visualKey: 'price-tag', relatedTopics: ['money', 'prices', 'economy'] },
+  {
+    slug: 'sky-blue',
+    category: 'Science',
+    title: 'Why is the sky blue?',
+    topic: 'Light scattering',
+    explanation: 'Air molecules scatter short blue wavelengths of sunlight more strongly than long red wavelengths, spreading blue light across the daytime sky.',
+    takeaway: 'Blue light gets scattered most by the atmosphere.',
+    difficulty: 'Beginner',
+    visualKey: 'prism',
+    relatedTopics: ['light', 'atmosphere', 'color'],
+    mediaType: 'video',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'Which light scatters most in the atmosphere?', options: ['Red', 'Blue', 'Green', 'Infrared'], answer: 1, explanation: 'Short blue wavelengths are scattered more strongly by air molecules.' },
+      { id: 'q2', question: 'What causes Rayleigh scattering?', options: ['Cloud moisture', 'Atmospheric gas molecules', 'Dust particles', 'Solar flares'], answer: 1, explanation: 'Gas molecules in the atmosphere scatter shorter blue light waves.' }
+    ]
+  },
+  {
+    slug: 'vaccines-memory',
+    category: 'Science',
+    title: 'How vaccines train immunity',
+    topic: 'Immune memory',
+    explanation: 'A vaccine safely shows the immune system a recognizable feature of a pathogen, allowing memory cells to respond faster during a later encounter.',
+    takeaway: 'Immune memory makes a second response faster and stronger.',
+    difficulty: 'Beginner',
+    visualKey: 'shield',
+    relatedTopics: ['cells', 'health', 'biology'],
+    mediaType: 'text',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'What cell type creates long-term immunity?', options: ['Red blood cells', 'Memory cells', 'Platelets', 'Hormones'], answer: 1, explanation: 'Memory B and T cells remember pathogens for rapid future responses.' }
+    ]
+  },
+  {
+    slug: 'planes-fly',
+    category: 'Science',
+    title: 'Why planes can fly',
+    topic: 'Lift',
+    explanation: 'A wing changes the airflow around it, creating a pressure difference and redirecting air downward. The matching upward force is lift.',
+    takeaway: 'Lift is the upward force created by a wing moving through air.',
+    difficulty: 'Beginner',
+    visualKey: 'wing',
+    relatedTopics: ['forces', 'motion', 'engineering'],
+    mediaType: 'video',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'What force pushes an airplane upward?', options: ['Thrust', 'Drag', 'Lift', 'Gravity'], answer: 2, explanation: 'Lift is generated by wing shape and forward airflow velocity.' }
+    ]
+  },
+  {
+    slug: 'black-holes',
+    category: 'Space',
+    title: 'How black holes work',
+    topic: 'Gravity',
+    explanation: 'When enough mass is compressed into a small space, gravity becomes so strong that beyond the event horizon even light cannot escape.',
+    takeaway: 'A black hole is defined by an escape boundary, not by being a cosmic vacuum.',
+    difficulty: 'Intermediate',
+    visualKey: 'orbit',
+    relatedTopics: ['gravity', 'stars', 'space-time'],
+    mediaType: 'video',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'What marks the point beyond which light cannot escape?', options: ['The core', 'The orbit', 'The event horizon', 'The accretion disk'], answer: 2, explanation: 'The event horizon is the boundary around a black hole where escape is no longer possible.' }
+    ]
+  },
+  {
+    slug: 'binary',
+    category: 'Technology',
+    title: 'Why computers use binary',
+    topic: 'Binary numbers',
+    explanation: 'Electronic circuits can reliably distinguish two voltage states, so computers represent information with combinations of 0 and 1.',
+    takeaway: 'Binary fits the two stable states of digital circuits.',
+    difficulty: 'Beginner',
+    visualKey: 'code',
+    relatedTopics: ['logic', 'circuits', 'data'],
+    mediaType: 'text',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'Why do digital circuits use binary?', options: ['It is cheaper', 'Two voltage states are very reliable', 'It uses less power', 'Math is faster'], answer: 1, explanation: 'High and low voltage states are easily distinguished without noise.' }
+    ]
+  },
+  {
+    slug: 'compound-interest',
+    category: 'Mathematics',
+    title: 'Why compound interest matters',
+    topic: 'Exponential growth',
+    explanation: 'Compound interest adds growth to the original amount and to earlier growth, so the base gets larger over time.',
+    takeaway: 'Growth can accelerate when each period builds on the last.',
+    difficulty: 'Beginner',
+    visualKey: 'growth',
+    relatedTopics: ['money', 'percentages', 'planning'],
+    mediaType: 'text',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'What does compound growth build on?', options: ['Only the original amount', 'Earlier growth as well as original', 'A fixed fee', 'Random rate'], answer: 1, explanation: 'Compound growth accumulates on top of accumulated interest.' }
+    ]
+  },
+  {
+    slug: 'spacing-effect',
+    category: 'Psychology',
+    title: 'Why spaced practice works',
+    topic: 'Spacing effect',
+    explanation: 'Reviewing information across separate sessions gives memory repeated chances to retrieve and rebuild the idea.',
+    takeaway: 'Short, spread-out reviews usually beat one long cram session.',
+    difficulty: 'Beginner',
+    visualKey: 'calendar',
+    relatedTopics: ['memory', 'learning', 'habits'],
+    mediaType: 'text',
+    status: 'approved',
+    questions: [
+      { id: 'q1', question: 'Which study pattern strengthens memory?', options: ['One long cram session', 'No review', 'Short reviews spread over time', 'Skimming headlines'], answer: 2, explanation: 'Spaced retrieval reinforces synaptic pathways over time.' }
+    ]
+  },
+  {
+    slug: 'user-post-quantum',
+    category: 'Technology',
+    title: 'Quantum Computing in 60 Seconds',
+    topic: 'Quantum bits',
+    explanation: 'Unlike classical bits that are either 0 or 1, quantum bits (qubits) leverage superposition to represent complex states simultaneously.',
+    takeaway: 'Superposition gives quantum computers massive parallel computing power.',
+    difficulty: 'Intermediate',
+    visualKey: 'spark',
+    relatedTopics: ['physics', 'tech', 'computing'],
+    mediaType: 'text',
+    authorName: 'Alex M.',
+    status: 'pending',
+    questions: []
+  }
 ]
 
 const demoProfiles = [
-  { email: 'alex@bolt.demo', username: 'alexbolt', displayName: 'Alex M.', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'], age: 16, grade: 'Grade 9-12', xp: 1250, streak: 5, completedCount: 12 },
-  { email: 'maya@bolt.demo', username: 'mayabolt', displayName: 'Maya R.', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'], age: 20, grade: 'College / Adult', xp: 2400, streak: 9, completedCount: 22 },
-  { email: 'sam@bolt.demo', username: 'sambolt', displayName: 'Sam T.', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'], age: 14, grade: 'Grade 6-8', xp: 850, streak: 3, completedCount: 8 },
+  { email: 'alex@bolt.demo', username: 'alexbolt', displayName: 'Alex M.', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'], age: 16, grade: 'Grade 9-12', xp: 1250, streak: 5, completedCount: 12, role: 'user', bio: 'Tech enthusiast & future space engineer 🚀', followers: ['mayabolt', 'sambolt'], following: ['mayabolt'] },
+  { email: 'maya@bolt.demo', username: 'mayabolt', displayName: 'Maya R.', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'], age: 20, grade: 'College / Adult', xp: 2400, streak: 9, completedCount: 22, role: 'user', bio: 'Exploring cognitive science and ancient history 📚', followers: ['alexbolt'], following: ['alexbolt', 'sambolt'] },
+  { email: 'sam@bolt.demo', username: 'sambolt', displayName: 'Sam T.', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'], age: 14, grade: 'Grade 6-8', xp: 850, streak: 3, completedCount: 8, role: 'user', bio: 'Passionate about clean energy and biodiversity 🌱', followers: ['mayabolt'], following: ['alexbolt'] },
+  { email: 'admin@bolt.demo', username: 'adminbolt', displayName: 'Admin User', password: 'BoltAdmin123!', interests: ['Science', 'Technology', 'Mathematics'], age: 25, grade: 'College / Adult', xp: 9990, streak: 30, completedCount: 50, role: 'admin', bio: 'Bolt Platform Administrator ⚡', followers: ['alexbolt', 'mayabolt', 'sambolt'], following: [] },
 ]
 
 const quizzes: QuizDocument[] = [
   { lessonSlug: 'sky-blue', question: 'Which light scatters most in the atmosphere?', options: ['Red', 'Blue', 'Green', 'Infrared'], answer: 1, explanation: 'Short blue wavelengths are scattered more strongly by air molecules.' },
   { lessonSlug: 'black-holes', question: 'What marks the point beyond which light cannot escape?', options: ['The core', 'The orbit', 'The event horizon', 'The accretion disk'], answer: 2, explanation: 'The event horizon is the boundary around a black hole where escape is no longer possible.' },
-  { lessonSlug: 'solar-panels', question: 'What creates current in a solar cell?', options: ['Moving photons', 'Excited electrons', 'Hot air', 'Magnetic waves'], answer: 1, explanation: 'Photons transfer energy to electrons in the semiconductor, creating current.' },
+  { lessonSlug: 'planes-fly', question: 'What force pushes an airplane upward?', options: ['Thrust', 'Drag', 'Lift', 'Gravity'], answer: 2, explanation: 'Lift is generated by wing shape and forward airflow velocity.' },
   { lessonSlug: 'compound-interest', question: 'What does compound growth build on?', options: ['Only the original amount', 'Earlier growth as well as the original', 'A fixed fee', 'A random rate'], answer: 1, explanation: 'Each period adds growth to the amount that has already grown.' },
   { lessonSlug: 'spacing-effect', question: 'Which study pattern usually strengthens memory?', options: ['One long cram session', 'No review', 'Short reviews spread over time', 'Reading only the title'], answer: 2, explanation: 'Spaced practice gives memory repeated retrieval opportunities.' },
-  { lessonSlug: 'carbon-footprint', question: 'What does a carbon footprint estimate?', options: ['Shoe size', 'Greenhouse gas emissions', 'Rainfall', 'Recycling speed'], answer: 1, explanation: 'A carbon footprint estimates greenhouse gas emissions linked to an activity or product.' },
 ]
 
 await connectDatabase()
@@ -75,6 +173,11 @@ await User.insertMany(await Promise.all(demoProfiles.map(async (profile) => ({
   xp: profile.xp,
   streak: profile.streak,
   completedCount: profile.completedCount,
+  role: profile.role as 'user' | 'admin',
+  bio: profile.bio,
+  avatar: '',
+  followers: profile.followers,
+  following: profile.following,
 }))))
 console.log(`Seeded ${demoProfiles.length} demo profiles`)
 await disconnectDatabase()

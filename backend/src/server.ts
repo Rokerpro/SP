@@ -1,11 +1,12 @@
 import 'dotenv/config'
-import { app } from './app.js'
+import { app, ensureDefaultAdmin } from './app.js'
 import { connectDatabase } from './db.js'
 
 const port = Number(process.env.PORT) || 3001
 
 connectDatabase()
-  .then(() => {
+  .then(async () => {
+    await ensureDefaultAdmin()
     app.listen(port, () => {
       console.log(`Bolt API listening on http://localhost:${port}`)
     })

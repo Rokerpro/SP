@@ -11,6 +11,11 @@ export interface UserDocument {
   xp: number
   streak: number
   completedCount: number
+  role: 'user' | 'admin'
+  bio: string
+  avatar: string
+  followers: string[]
+  following: string[]
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -25,6 +30,11 @@ const userSchema = new Schema<UserDocument>(
     xp: { type: Number, default: 0 },
     streak: { type: Number, default: 0 },
     completedCount: { type: Number, default: 0 },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    bio: { type: String, default: '' },
+    avatar: { type: String, default: '' },
+    followers: { type: [String], default: [] },
+    following: { type: [String], default: [] },
   },
   { timestamps: true },
 )

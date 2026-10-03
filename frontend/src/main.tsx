@@ -22,7 +22,7 @@ const interestOptions = [
   ['UX Clarity', '▥'],
 ] as const
 
-type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[]; age?: number; grade?: string; xp?: number; streak?: number; completedCount?: number }
+type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[]; age?: number; grade?: string; xp?: number; streak?: number; completedCount?: number; role?: 'user' | 'admin'; followersCount?: number; followingCount?: number }
 type SignupStep = 'auth' | 'interests' | 'people'
 
 const peopleSuggestions = [
@@ -288,12 +288,100 @@ function App() {
 
   async function searchLessons(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!searchQuery.trim()) return
     const response = await fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(searchQuery)}`)
     const result = await response.json()
     if (result.success) setLessons(result.data)
   }
 
-  if (sessionUser || shouldRenderProfileRoute) return <HomePage username={sessionUser?.username ?? 'user'} displayName={sessionUser?.displayName ?? 'Display Name'} interests={sessionUser?.interests ?? []} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
+  const [userPosts, setUserPosts] = useState<HomeLesson[]>([])
+
+  useEffect(() => {
+    if (!sessionUser) return
+    const token = localStorage.getItem('bolt-token') ?? ''
+    fetch(`${apiUrl}/posts/my`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => res.json())
+      .then((res) => { if (res.success) setUserPosts(res.data) })
+      .catch(() => {})
+  }, [sessionUser])
+
+  async function handleCreatePost(postData: { title: string; topic: string; category: string; explanation: string; takeaway: string; difficulty: string; mediaType: 'text' | 'video'; videoUrl: string }) {
+    const token = localStorage.getItem('bolt-token') ?? ''
+    const response = await fetch(`${apiUrl}/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(postData),
+    })
+    const result = await response.json()
+    if (result.success) {
+      setUserPosts((curr) => [result.data, ...curr])
+    }
+  }
+
+  async function handleApprovePost(slug: string) {
+    const token = localStorage.getItem('bolt-token') ?? ''
+    await fetch(`${apiUrl}/admin/posts/${slug}/approve`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  }
+
+  async function handleRejectPost(slug: string) {
+    const token = localStorage.getItem('bolt-token') ?? ''
+    await fetch(`${apiUrl}/admin/posts/${slug}/reject`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  }
+
+  if (sessionUser || shouldRenderProfileRoute) {
+    return (
+      <HomePage
+        username={sessionUser?.username ?? 'user'}
+        displayName={sessionUser?.displayName ?? 'Display Name'}
+        userRole={sessionUser?.role ?? 'user'}
+        userFollowersCount={sessionUser?.followersCount ?? 0}
+        userFollowingCount={sessionUser?.followingCount ?? 0}
+        interests={sessionUser?.interests ?? []}
+        activeView={activeView}
+        lessons={lessons}
+        userPosts={userPosts}
+        savedLessons={savedLessons}
+        progressStats={progressStats}
+        categories={categories}
+        searchQuery={searchQuery}
+        quiz={quiz}
+        quizFeedback={quizFeedback}
+        tutorPrompt={tutorPrompt}
+        tutorAnswer={tutorAnswer}
+        onViewChange={navigateToView}
+        onLogout={handleLogout}
+        onSearchQueryChange={setSearchQuery}
+        onSearch={searchLessons}
+        onCategorySelect={(category) => {
+          setSearchQuery(category)
+          void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`)
+            .then((response) => response.json())
+            .then((result) => result.success && setLessons(result.data))
+        }}
+        onLessonSelect={(lesson) => {
+          navigateToView('home')
+          setLessons([lesson])
+        }}
+        onCompleteLesson={completeLesson}
+        onToggleSaved={toggleSaved}
+        onOpenQuiz={openQuiz}
+        onCloseQuiz={() => setQuiz(null)}
+        onAnswerQuiz={answerQuiz}
+        onQuizFeedbackDismiss={() => setQuizFeedback('')}
+        onTutorPromptChange={setTutorPrompt}
+        onAskTutor={askTutor}
+        onCreatePost={handleCreatePost}
+        onApprovePost={handleApprovePost}
+        onRejectPost={handleRejectPost}
+      />
+    )
+  }
 
   if (step === 'interests') {
     return (

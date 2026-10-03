@@ -2184,3 +2184,307 @@ input::placeholder {
     order: 3;
   }
 }
+
+/* Video Reel Styling */
+.reel-video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  background: #000;
+}
+
+.reel-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Admin Panel Styling */
+.admin-page {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 10px 0 40px;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 24px 0 32px;
+}
+
+.stat-card {
+  padding: 22px 18px;
+  border-radius: 16px;
+  background: #191b24;
+  border: 1px solid #303340;
+  text-align: center;
+}
+
+.stat-card.highlight {
+  border-color: rgba(185, 200, 255, 0.4);
+  background: linear-gradient(180deg, rgba(185, 200, 255, 0.1) 0%, #191b24 100%);
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #b9c8ff;
+}
+
+.stat-card p {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: #9ea4bd;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-pending-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.admin-post-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: #161822;
+  border: 1px solid #303340;
+}
+
+.admin-post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.category-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(185, 200, 255, 0.15);
+  color: #b9c8ff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.author-tag {
+  color: #8c95b2;
+  font-size: 0.78rem;
+}
+
+.admin-post-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+  color: #f5f5f7;
+}
+
+.admin-post-card p {
+  margin: 0 0 12px;
+  color: #b4b9cb;
+  line-height: 1.5;
+}
+
+.admin-post-card strong {
+  display: block;
+  color: #dce3ff;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.approve-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.approve-btn:hover {
+  background: rgba(74, 222, 128, 0.28);
+}
+
+.reject-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.reject-btn:hover {
+  background: rgba(248, 113, 113, 0.28);
+}
+
+/* User Profile & Post Status Badges */
+.admin-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #b9c8ff;
+  color: #0c101a;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-stats-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 14px;
+}
+
+.profile-stats-row > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-stats-row strong {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #f5f5f7;
+}
+
+.profile-stats-row span {
+  font-size: 0.72rem;
+  color: #8c95b2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.create-reel-btn {
+  width: 100%;
+  padding: 14px;
+  margin: 24px 0 28px;
+  border-radius: 12px;
+  border: 1px dashed #b9c8ff;
+  background: rgba(185, 200, 255, 0.06);
+  color: #b9c8ff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.create-reel-btn:hover {
+  background: rgba(185, 200, 255, 0.14);
+  border-color: #dce3ff;
+}
+
+.profile-section-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #a0a8c2;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.user-posts-list {
+  display: grid;
+  gap: 14px;
+}
+
+.user-post-card {
+  padding: 18px;
+  border-radius: 14px;
+  background: #191b24;
+  border: 1px solid #303340;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.post-category {
+  font-size: 0.72rem;
+  color: #b9c8ff;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.status-badge.pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.status-badge.approved {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.status-badge.rejected {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.user-post-card h3 {
+  margin: 4px 0;
+  font-size: 1.15rem;
+  color: #f5f5f7;
+}
+
+.user-post-card p {
+  margin: 0;
+  color: #a4abbf;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* Modal Form Styles */
+.create-post-dialog {
+  position: relative;
+  width: min(92vw, 520px);
+  padding: 32px 28px;
+  border-radius: 20px;
+  background: #191b24;
+  border: 1px solid #343746;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.create-post-dialog h2 {
+  margin: 6px 0 20px;
+  font-size: 1.4rem;
+}
+
+.text-area {
+  min-height: 90px;
+  padding: 10px 13px;
+  resize: vertical;
+}

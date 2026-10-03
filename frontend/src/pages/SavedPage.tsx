@@ -17,27 +17,30 @@ export function SavedPage({
     <div className="saved-page-container">
       <header className="page-header">
         <span className="eyebrow">BOOKMARKS</span>
-        <h1>Saved Reels ({savedLessons.length})</h1>
-        <p>Review the educational reels you saved for future learning.</p>
+        <h1>Saved Volts ({savedLessons.length})</h1>
+        <p>Review the educational volts you saved for future learning.</p>
       </header>
 
-      <div className="reels-grid">
-        {savedLessons.map((lesson) => (
-          <ReelCard
-            key={lesson.slug}
-            lesson={lesson}
-            isSaved={true}
-            onToggleSave={onToggleSaved}
-            onComplete={onCompleteLesson}
-            onOpenQuiz={onOpenQuiz}
-          />
-        ))}
-        {savedLessons.length === 0 && (
-          <div className="empty-state">
-            <p>You haven't saved any reels yet. Click the 🔖 Bookmark button on any reel to save it here!</p>
-          </div>
-        )}
-      </div>
+      {savedLessons.length > 0 ? (
+        <div className="reels-grid">
+          {savedLessons.map((lesson) => (
+            <ReelCard
+              key={lesson.slug}
+              lesson={lesson}
+              isSaved={true}
+              onToggleSave={onToggleSaved}
+              onComplete={onCompleteLesson}
+              onOpenQuiz={onOpenQuiz}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state saved-empty-state">
+          <div className="empty-state-icon">🔖</div>
+          <h3>No Saved Volts</h3>
+          <p>You haven't saved any reels yet. Click the 🔖 Bookmark button on any reel to save it here!</p>
+        </div>
+      )}
     </div>
   )
 }

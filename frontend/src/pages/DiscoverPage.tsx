@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, useCallback, type FormEvent } from 'react'
 import { ReelCard, type HomeLesson } from '../components/ReelCard'
 
 type DiscoverPageProps = {
@@ -26,7 +26,7 @@ export function DiscoverPage({
   tutorPrompt,
   tutorAnswer,
   onSearchQueryChange,
-  onSearchSubmit,
+  onSearchSubmit: _onSearchSubmit,
   onCategorySelect,
   onToggleSaved,
   onCompleteLesson,
@@ -35,34 +35,112 @@ export function DiscoverPage({
   onAskTutor,
 }: DiscoverPageProps) {
   const [selectedCat, setSelectedCat] = useState<string>('All')
+  const [localLessons, setLocalLessons] = useState<HomeLesson[]>(lessons)
+  const [isSearching, setIsSearching] = useState(false)
+  const apiUrl = import.meta.env.VITE_API_URL ?? '/api'
+
+  // Execute search with query and category
+  const runSearch = useCallback(
+    async (queryText: string, cat: string) => {
+      setIsSearching(true)
+      try {
+        const params = new URLSearchParams()
+        if (queryText.trim()) params.set('q', queryText.trim())
+        if (cat && cat !== 'All') params.set('category', cat)
+
+        const url = params.toString()
+          ? `${apiUrl}/lessons/search?${params.toString()}`
+          : `${apiUrl}/lessons`
+
+        const res = await fetch(url)
+        const result = await res.json()
+        if (result.success && Array.isArray(result.data)) {
+          setLocalLessons(result.data)
+        }
+      } catch (err) {
+        console.error('Failed to search lessons:', err)
+      } finally {
+        setIsSearching(false)
+      }
+    },
+    [apiUrl]
+  )
+
+  // Fetch full catalog on initial mount
+  useEffect(() => {
+    runSearch('', 'All')
+  }, [runSearch])
+
+  // Debounced search as user types
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      runSearch(searchQuery, selectedCat)
+    }, 280)
+    return () => clearTimeout(timer)
+  }, [searchQuery, selectedCat, runSearch])
+
+  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    runSearch(searchQuery, selectedCat)
+  }
+
+  const handleClearSearch = () => {
+    onSearchQueryChange('')
+    runSearch('', selectedCat)
+  }
+
+  const handleSelectCategory = (cat: string) => {
+    setSelectedCat(cat)
+    onCategorySelect(cat === 'All' ? '' : cat)
+    runSearch(searchQuery, cat)
+  }
+
+  const handleResetFilters = () => {
+    setSelectedCat('All')
+    onSearchQueryChange('')
+    onCategorySelect('')
+    runSearch('', 'All')
+  }
 
   return (
     <div className="discover-page-container">
       <header className="page-header">
-        <span className="eyebrow">EXPLORE & LEARN</span>
+        <span className="eyebrow">EXPLORE &amp; LEARN</span>
         <h1>Discover Topics</h1>
         <p>Find educational reels across science, tech, history, psychology, and more.</p>
       </header>
 
-      <form className="search-bar-form" onSubmit={onSearchSubmit}>
+      {/* Search Bar */}
+      <form className="search-bar-form" onSubmit={handleFormSubmit}>
         <span className="search-icon">🔍</span>
         <input
           type="text"
-          placeholder="Search by topic, title, or keyword..."
+          placeholder="Search by topic, title, takeaway, or keyword..."
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
         />
-        <button type="submit">Search</button>
+        {searchQuery && (
+          <button
+            type="button"
+            className="search-clear-btn"
+            onClick={handleClearSearch}
+            title="Clear search"
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+        <button type="submit">
+          {isSearching ? 'Searching...' : 'Search'}
+        </button>
       </form>
 
+      {/* Category Pills */}
       <div className="category-pills-row">
         <button
           type="button"
           className={`category-pill-btn ${selectedCat === 'All' ? 'active' : ''}`}
-          onClick={() => {
-            setSelectedCat('All')
-            onCategorySelect('')
-          }}
+          onClick={() => handleSelectCategory('All')}
         >
           All Topics
         </button>
@@ -71,16 +149,14 @@ export function DiscoverPage({
             type="button"
             key={cat}
             className={`category-pill-btn ${selectedCat === cat ? 'active' : ''}`}
-            onClick={() => {
-              setSelectedCat(cat)
-              onCategorySelect(cat)
-            }}
+            onClick={() => handleSelectCategory(cat)}
           >
             {cat}
           </button>
         ))}
       </div>
 
+      {/* AI Assistant */}
       <section className="tutor-box-card">
         <div className="tutor-header">
           <span className="tutor-badge">🤖 AI Learning Assistant</span>
@@ -103,10 +179,14 @@ export function DiscoverPage({
         )}
       </section>
 
+      {/* Results Section */}
       <section className="discover-results-section">
-        <h2>Reels ({lessons.length})</h2>
+        <h2>
+          Reels ({localLessons.length})
+          {selectedCat !== 'All' && <span style={{ color: '#818cf8', fontSize: '0.9rem', fontWeight: 600, marginLeft: 8 }}>· {selectedCat}</span>}
+        </h2>
         <div className="reels-grid">
-          {lessons.map((lesson) => (
+          {localLessons.map((lesson) => (
             <ReelCard
               key={lesson.slug}
               lesson={lesson}
@@ -116,8 +196,23 @@ export function DiscoverPage({
               onOpenQuiz={onOpenQuiz}
             />
           ))}
-          {lessons.length === 0 && (
-            <p className="empty-state">No reels found for your query. Try another search!</p>
+          {localLessons.length === 0 && !isSearching && (
+            <div className="discover-empty-state">
+              <p>
+                No reels found
+                {searchQuery ? (
+                  <> matching <strong>"{searchQuery}"</strong></>
+                ) : null}
+                {selectedCat !== 'All' ? ` in ${selectedCat}` : ''}.
+              </p>
+              <button
+                type="button"
+                className="discover-reset-btn"
+                onClick={handleResetFilters}
+              >
+                Reset filters &amp; show all reels
+              </button>
+            </div>
           )}
         </div>
       </section>

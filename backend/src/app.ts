@@ -154,13 +154,32 @@ app.get('/api/lessons', async (_request, response) => {
 
 app.get('/api/lessons/search', async (request, response) => {
   const query = typeof request.query.q === 'string' ? request.query.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''
-  const filter: Record<string, unknown> = query ? { status: 'approved', $or: [{ title: new RegExp(query, 'i') }, { topic: new RegExp(query, 'i') }, { category: new RegExp(query, 'i') }] } : { status: 'approved' }
+  const category = typeof request.query.category === 'string' ? request.query.category.trim() : ''
+
+  const filter: Record<string, unknown> = { status: { $ne: 'rejected' } }
+
+  if (category && category !== 'All') {
+    filter.category = new RegExp(`^${category}$`, 'i')
+  }
+
+  if (query) {
+    const regex = new RegExp(query, 'i')
+    filter.$or = [
+      { title: regex },
+      { topic: regex },
+      { category: regex },
+      { explanation: regex },
+      { takeaway: regex },
+      { relatedTopics: regex },
+    ]
+  }
+
   const lessons = await Lesson.find(filter).sort({ createdAt: -1 }).lean()
   response.json({ success: true, data: lessons })
 })
 
 app.get('/api/categories', async (_request, response) => {
-  response.json({ success: true, data: await Lesson.distinct('category', { status: 'approved' }) })
+  response.json({ success: true, data: await Lesson.distinct('category', { status: { $ne: 'rejected' } }) })
 })
 
 app.get('/api/feed', requireAuth, async (request: AuthenticatedRequest, response) => {
@@ -344,7 +363,7 @@ app.get('/api/users/suggested', requireAuth, async (request: AuthenticatedReques
     grade: u.grade || 'General',
     followersCount: u.followers?.length ?? 0,
     followingCount: u.following?.length ?? 0,
-    isFollowing: currentUser.following.includes(u.username),
+    isFollowing: Array.isArray(currentUser.following) ? currentUser.following.includes(u.username) : false,
   }))
 
   response.json({ success: true, data })
@@ -619,11 +638,19 @@ app.post('/api/quizzes/:lessonSlug/attempt', requireAuth, async (request: Authen
     return
   }
   const correct = answer === quiz.answer
-  await QuizAttempt.create({ userId: request.userId, lessonSlug, answer, correct })
+  let xpEarned = 0
   if (correct) {
-    await User.findByIdAndUpdate(request.userId, { $inc: { xp: 100 } })
+    const lesson = await Lesson.findOne({ slug: lessonSlug }).lean()
+    const difficultyPoints: Record<string, number> = {
+      Beginner: 50,
+      Intermediate: 100,
+      Advanced: 150,
+    }
+    xpEarned = (lesson?.difficulty && difficultyPoints[lesson.difficulty]) || 100
+    await User.findByIdAndUpdate(request.userId, { $inc: { xp: xpEarned } })
   }
-  response.json({ success: true, data: { correct, explanation: quiz.explanation } })
+  await QuizAttempt.create({ userId: request.userId, lessonSlug, answer, correct })
+  response.json({ success: true, data: { correct, explanation: quiz.explanation, xpEarned } })
 })
 
 app.post('/api/tutor', requireAuth, async (request, response) => {

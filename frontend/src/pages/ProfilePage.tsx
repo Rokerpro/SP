@@ -87,7 +87,7 @@ export function ProfilePage({
           <div className="profile-stats-row">
             <div>
               <strong>{userPosts.length}</strong>
-              <span>Reels</span>
+              <span>Volts</span>
             </div>
             <div>
               <strong>{userFollowersCount}</strong>
@@ -102,10 +102,10 @@ export function ProfilePage({
       </div>
 
       <button className="create-reel-btn" type="button" onClick={onOpenCreateModal}>
-        + Create New Educational Reel
+        + Create New Educational Volt
       </button>
 
-      <div className="profile-section-label">Your Created Reels ({userPosts.length})</div>
+      <div className="profile-section-label">Your Created Volts ({userPosts.length})</div>
       <div className="user-posts-list">
         {userPosts.map((post) => (
           <article className="user-post-card" key={post.slug}>

@@ -55,13 +55,13 @@ export function CreateReelModal({ onClose, onSubmit }: CreateReelModalProps) {
   }
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="modal-card create-reel-modal">
         <button className="modal-close-btn" type="button" onClick={onClose}>
           ✕
         </button>
-        <span className="modal-eyebrow">COMMUNITY REELS</span>
-        <h2>Create Educational Reel</h2>
+        <span className="modal-eyebrow">COMMUNITY VOLTS</span>
+        <h2>Create Educational Volt</h2>
 
         <form onSubmit={handleSubmit} className="create-reel-form">
           <label htmlFor="post-title">TITLE</label>

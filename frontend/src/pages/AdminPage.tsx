@@ -151,11 +151,13 @@ export function AdminPage({ onApprovePost, onRejectPost }: AdminPageProps) {
               {adminUsers.map((u) => (
                 <div className="admin-user-row" key={u._id}>
                   <div className="admin-user-info">
-                    <div className="user-avatar">{u.displayName.slice(0, 2).toUpperCase()}</div>
+                    <div className="user-avatar">
+                      {((u.displayName || u.username || 'U').slice(0, 2)).toUpperCase()}
+                    </div>
                     <div>
-                      <strong>{u.displayName}</strong>
+                      <strong>{u.displayName || u.username || 'User'}</strong>
                       <small>
-                        @{u.username} · {u.email} · {u.grade || 'General'} · {u.xp ?? 0} XP
+                        @{u.username || 'user'} · {u.email} · {u.grade || 'General'} · {u.xp ?? 0} XP
                       </small>
                     </div>
                   </div>

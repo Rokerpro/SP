@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { BoltLogo } from '../BoltLogo'
+import { VoltIcon } from './VoltIcon'
 
 type SidebarProps = {
   username: string
@@ -21,16 +22,16 @@ export function Sidebar({
   return (
     <aside className="app-sidebar" aria-label="Main Navigation">
       <div className="sidebar-brand" onClick={() => navigate('/home')} style={{ cursor: 'pointer' }}>
-        <div className="bolt-logo">
-          <BoltLogo />
+        <div className="sidebar-logo-icon">
+          <BoltLogo compact />
         </div>
         <span className="brand-title">BOLT</span>
       </div>
 
       <nav className="sidebar-nav">
         <NavLink to="/home" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">🔥</span>
-          <span className="nav-text">Reels</span>
+          <span className="nav-icon"><VoltIcon width={22} height={22} /></span>
+          <span className="nav-text">Volt</span>
         </NavLink>
 
         <NavLink to="/discover" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>

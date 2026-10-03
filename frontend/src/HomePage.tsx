@@ -608,7 +608,7 @@ export function HomePage({
       </section>
 
       {showCreateModal && (
-        <div className="quiz-modal">
+        <div className="quiz-modal" onClick={(e) => { if (e.target === e.currentTarget) setShowCreateModal(false) }}>
           <div className="create-post-dialog">
             <button className="modal-close" type="button" onClick={() => setShowCreateModal(false)}>Close</button>
             <p className="eyebrow">CREATE REEL</p>

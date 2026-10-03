@@ -147,22 +147,26 @@ export function App() {
     })
     const result = await res.json()
     if (result.success) {
-      setQuizFeedback(`${result.data.correct ? '✓ Correct!' : '✕ Not quite'}: ${result.data.explanation}`)
+      const xpText = result.data.correct && result.data.xpEarned ? ` (+${result.data.xpEarned} XP)` : ''
+      setQuizFeedback(`${result.data.correct ? `✓ Correct!${xpText}` : '✕ Not quite'}: ${result.data.explanation}`)
       setQuiz(null)
     }
   }
 
-  const handleSearchSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
-    const res = await fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(searchQuery)}`)
+  const handleSearchSubmit = async (e?: FormEvent<HTMLFormElement>) => {
+    if (e) e.preventDefault()
+    const query = searchQuery.trim()
+    const url = query ? `${apiUrl}/lessons/search?q=${encodeURIComponent(query)}` : `${apiUrl}/lessons`
+    const res = await fetch(url)
     const result = await res.json()
     if (result.success) setLessons(result.data)
   }
 
   const handleCategorySelect = (category: string) => {
-    setSearchQuery(category)
-    fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`)
+    const url = category && category !== 'All'
+      ? `${apiUrl}/lessons/search?category=${encodeURIComponent(category)}`
+      : `${apiUrl}/lessons`
+    fetch(url)
       .then((res) => res.json())
       .then((result) => result.success && setLessons(result.data))
   }

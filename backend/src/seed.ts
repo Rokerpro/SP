@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { hashPassword } from './auth.js'
 import { connectDatabase, disconnectDatabase } from './db.js'
 import { Lesson, type LessonDocument } from './models/lesson.js'
+import { Quiz, type QuizDocument } from './models/quiz.js'
 import { User } from './models/user.js'
 
 const lessons: LessonDocument[] = [
@@ -41,18 +42,32 @@ const lessons: LessonDocument[] = [
 ]
 
 const demoProfiles = [
-  { email: 'alex@bolt.demo', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'] },
-  { email: 'maya@bolt.demo', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'] },
-  { email: 'sam@bolt.demo', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'] },
+  { email: 'alex@bolt.demo', username: 'alexbolt', displayName: 'Alex M.', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'] },
+  { email: 'maya@bolt.demo', username: 'mayabolt', displayName: 'Maya R.', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'] },
+  { email: 'sam@bolt.demo', username: 'sambolt', displayName: 'Sam T.', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'] },
+]
+
+const quizzes: QuizDocument[] = [
+  { lessonSlug: 'sky-blue', question: 'Which light scatters most in the atmosphere?', options: ['Red', 'Blue', 'Green', 'Infrared'], answer: 1, explanation: 'Short blue wavelengths are scattered more strongly by air molecules.' },
+  { lessonSlug: 'black-holes', question: 'What marks the point beyond which light cannot escape?', options: ['The core', 'The orbit', 'The event horizon', 'The accretion disk'], answer: 2, explanation: 'The event horizon is the boundary around a black hole where escape is no longer possible.' },
+  { lessonSlug: 'solar-panels', question: 'What creates current in a solar cell?', options: ['Moving photons', 'Excited electrons', 'Hot air', 'Magnetic waves'], answer: 1, explanation: 'Photons transfer energy to electrons in the semiconductor, creating current.' },
+  { lessonSlug: 'compound-interest', question: 'What does compound growth build on?', options: ['Only the original amount', 'Earlier growth as well as the original', 'A fixed fee', 'A random rate'], answer: 1, explanation: 'Each period adds growth to the amount that has already grown.' },
+  { lessonSlug: 'spacing-effect', question: 'Which study pattern usually strengthens memory?', options: ['One long cram session', 'No review', 'Short reviews spread over time', 'Reading only the title'], answer: 2, explanation: 'Spaced practice gives memory repeated retrieval opportunities.' },
+  { lessonSlug: 'carbon-footprint', question: 'What does a carbon footprint estimate?', options: ['Shoe size', 'Greenhouse gas emissions', 'Rainfall', 'Recycling speed'], answer: 1, explanation: 'A carbon footprint estimates greenhouse gas emissions linked to an activity or product.' },
 ]
 
 await connectDatabase()
 await Lesson.deleteMany({})
 await Lesson.insertMany(lessons)
 console.log(`Seeded ${lessons.length} lessons`)
+await Quiz.deleteMany({})
+await Quiz.insertMany(quizzes)
+console.log(`Seeded ${quizzes.length} quizzes`)
 await User.deleteMany({ email: { $in: demoProfiles.map((profile) => profile.email) } })
 await User.insertMany(await Promise.all(demoProfiles.map(async (profile) => ({
   email: profile.email,
+  username: profile.username,
+  displayName: profile.displayName,
   passwordHash: await hashPassword(profile.password),
   interests: profile.interests,
 }))))

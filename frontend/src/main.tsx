@@ -20,7 +20,10 @@ const interestOptions = [
   ['UX Clarity', '▥'],
 ] as const
 
-type AuthUser = { id: string; email: string; interests: string[] }
+type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[] }
+type Lesson = { slug: string; category: string; title: string; topic: string; explanation: string; takeaway: string; difficulty: string; visualKey: string; relatedTopics: string[] }
+type ProgressStats = { conceptsLearned: number; quizAccuracy: number; savedLessons: number }
+type AppView = 'home' | 'discover' | 'saved' | 'progress'
 
 function KeyIcon() {
   return (
@@ -47,13 +50,27 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 function App() {
   const [mode, setMode] = useState<'login' | 'signup'>('signup')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [step, setStep] = useState<'auth' | 'interests'>('auth')
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null)
+  const [pendingUser, setPendingUser] = useState<AuthUser | null>(null)
+  const [activeView, setActiveView] = useState<AppView>('home')
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [savedLessons, setSavedLessons] = useState<Lesson[]>([])
+  const [progressStats, setProgressStats] = useState<ProgressStats>({ conceptsLearned: 0, quizAccuracy: 0, savedLessons: 0 })
+  const [searchQuery, setSearchQuery] = useState('')
+  const [quiz, setQuiz] = useState<{ lessonSlug: string; question: string; options: string[] } | null>(null)
+  const [quizFeedback, setQuizFeedback] = useState('')
+  const [tutorPrompt, setTutorPrompt] = useState('')
+  const [tutorAnswer, setTutorAnswer] = useState('')
 
   const isSignup = mode === 'signup'
   const canContinue = selectedInterests.length >= 3
@@ -70,11 +87,30 @@ function App() {
       .catch(() => localStorage.removeItem('bolt-token'))
   }, [])
 
+  useEffect(() => {
+    if (!sessionUser) return
+    const token = localStorage.getItem('bolt-token') ?? ''
+    const headers = { Authorization: `Bearer ${token}` }
+    Promise.all([
+      fetch(`${apiUrl}/feed`, { headers }).then((response) => response.json()),
+      fetch(`${apiUrl}/saved`, { headers }).then((response) => response.json()),
+      fetch(`${apiUrl}/progress`, { headers }).then((response) => response.json()),
+    ]).then(([feed, saved, progress]) => {
+      if (feed.success) setLessons(feed.data)
+      if (saved.success) setSavedLessons(saved.data)
+      if (progress.success) setProgressStats(progress.data)
+    }).catch(() => setError('Unable to load your learning data'))
+  }, [sessionUser])
+
   function switchMode(nextMode: 'login' | 'signup') {
     setMode(nextMode)
     setError('')
     setEmail('')
+    setUsername('')
+    setDisplayName('')
     setPassword('')
+    setConfirmPassword('')
+    setPendingUser(null)
   }
 
   function toggleInterest(interest: string) {
@@ -90,7 +126,7 @@ function App() {
       const response = await fetch(`${apiUrl}/auth/${isSignup ? 'signup' : 'login'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(isSignup ? { email, username, displayName, password, confirmPassword } : { email, password }),
       })
       const result = await response.json() as { success: boolean; error?: string; data?: { token: string; user: AuthUser } }
 
@@ -101,6 +137,7 @@ function App() {
       localStorage.setItem('bolt-token', result.data.token)
       setSelectedInterests(result.data.user.interests)
       if (isSignup || result.data.user.interests.length < 3) {
+        setPendingUser(result.data.user)
         setStep('interests')
       } else {
         setSessionUser(result.data.user)
@@ -125,7 +162,8 @@ function App() {
       })
       const result = await response.json() as { success: boolean; error?: string }
       if (!response.ok || !result.success) throw new Error(result.error ?? 'Unable to save interests')
-      setSessionUser({ id: '', email, interests: selectedInterests })
+      setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
+      setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to save interests')
     } finally {
@@ -137,27 +175,78 @@ function App() {
     localStorage.removeItem('bolt-token')
     setSessionUser(null)
     setSelectedInterests([])
+    setPendingUser(null)
     setStep('auth')
     switchMode('login')
   }
 
+  async function toggleSaved(lesson: Lesson) {
+    const token = localStorage.getItem('bolt-token') ?? ''
+    const saved = savedLessons.some((item) => item.slug === lesson.slug)
+    await fetch(`${apiUrl}/saved/${lesson.slug}`, { method: saved ? 'DELETE' : 'POST', headers: { Authorization: `Bearer ${token}` } })
+    setSavedLessons((current) => saved ? current.filter((item) => item.slug !== lesson.slug) : [...current, lesson])
+    setProgressStats((current) => ({ ...current, savedLessons: current.savedLessons + (saved ? -1 : 1) }))
+  }
+
+  async function completeLesson(lesson: Lesson) {
+    await fetch(`${apiUrl}/progress/${lesson.slug}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` }, body: JSON.stringify({ completed: true }) })
+    setProgressStats((current) => ({ ...current, conceptsLearned: current.conceptsLearned + 1 }))
+  }
+
+  async function openQuiz(lesson: Lesson) {
+    const response = await fetch(`${apiUrl}/quizzes/${lesson.slug}`, { headers: { Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` } })
+    const result = await response.json()
+    if (result.success) {
+      setQuiz({ lessonSlug: lesson.slug, question: result.data.question, options: result.data.options })
+      setQuizFeedback('')
+    }
+  }
+
+  async function answerQuiz(answer: number) {
+    if (!quiz) return
+    const response = await fetch(`${apiUrl}/quizzes/${quiz.lessonSlug}/attempt`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` }, body: JSON.stringify({ answer }) })
+    const result = await response.json()
+    if (result.success) {
+      setQuizFeedback(`${result.data.correct ? 'Correct' : 'Not quite'}: ${result.data.explanation}`)
+      setQuiz(null)
+    }
+  }
+
+  async function askTutor(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const response = await fetch(`${apiUrl}/tutor`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` }, body: JSON.stringify({ prompt: tutorPrompt, lessonSlug: lessons[0]?.slug }) })
+    const result = await response.json()
+    if (result.success) setTutorAnswer(result.data.answer)
+  }
+
+  async function searchLessons(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const response = await fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(searchQuery)}`)
+    const result = await response.json()
+    if (result.success) setLessons(result.data)
+  }
+
   if (sessionUser) {
     return (
-      <main className="auth-shell">
-        <div className="auth-layout signed-in-layout">
-          <header className="auth-header">
-            <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
-            <h1>YOU'RE IN</h1>
-            <p>{sessionUser.email.toUpperCase()}</p>
-          </header>
-          <section className="auth-card signed-in-card">
-            <h2>YOUR TOPICS</h2>
-            <div className="topic-list">
-              {sessionUser.interests.map((interest) => <span key={interest}>{interest}</span>)}
-            </div>
-            <button className="submit-button" type="button" onClick={handleLogout}>LOG OUT</button>
-          </section>
-        </div>
+      <main className="app-shell">
+        <nav className="app-nav">
+          <div className="app-brand"><span className="bolt-icon">✦</span> BOLT</div>
+          <div className="nav-links">
+            {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => setActiveView(view)}>{label}</button>)}
+          </div>
+          <button className="profile-button" type="button" onClick={handleLogout}>{sessionUser.displayName}</button>
+        </nav>
+        <section className="app-content">
+          {activeView === 'home' && <>
+            <header className="page-heading"><p className="eyebrow">YOUR DAILY BOLT</p><h1>Keep your curiosity moving.</h1><p>Short lessons, sharp ideas, better recall.</p></header>
+            <div className="lesson-feed">{lessons.map((lesson) => <article className="lesson-card" key={lesson.slug}><div className="lesson-visual"><span>{lesson.visualKey}</span></div><div className="lesson-body"><div className="lesson-meta"><span>{lesson.category}</span><span>{lesson.difficulty}</span></div><h2>{lesson.title}</h2><p>{lesson.explanation}</p><strong>{lesson.takeaway}</strong><div className="lesson-actions"><button type="button" onClick={() => completeLesson(lesson)}>Mark learned</button><button type="button" onClick={() => toggleSaved(lesson)}>{savedLessons.some((item) => item.slug === lesson.slug) ? 'Saved' : 'Save'}</button><button type="button" onClick={() => openQuiz(lesson)}>Quiz</button></div></div></article>)}</div>
+          </>}
+          {activeView === 'discover' && <><header className="page-heading"><p className="eyebrow">DISCOVER</p><h1>Find your next idea.</h1></header><form className="search-form" onSubmit={searchLessons}><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search lessons, topics, categories" /><button type="submit">Search</button></form><div className="discover-list">{lessons.map((lesson) => <button type="button" key={lesson.slug} onClick={() => { setActiveView('home'); setLessons([lesson]) }}><span>{lesson.category}</span><strong>{lesson.title}</strong><small>{lesson.topic}</small></button>)}</div></>}
+          {activeView === 'saved' && <><header className="page-heading"><p className="eyebrow">SAVED</p><h1>Ideas worth returning to.</h1></header><div className="saved-list">{savedLessons.length ? savedLessons.map((lesson) => <article key={lesson.slug}><span>{lesson.category}</span><h2>{lesson.title}</h2><button type="button" onClick={() => toggleSaved(lesson)}>Remove</button></article>) : <p className="empty-state">Nothing saved yet.</p>}</div></>}
+          {activeView === 'progress' && <><header className="page-heading"><p className="eyebrow">PROGRESS</p><h1>Your learning pulse.</h1></header><div className="stats-grid"><div><strong>{progressStats.conceptsLearned}</strong><span>concepts learned</span></div><div><strong>{progressStats.quizAccuracy}%</strong><span>quiz accuracy</span></div><div><strong>{progressStats.savedLessons}</strong><span>saved lessons</span></div></div><section className="tutor-panel"><p className="eyebrow">BOLT TUTOR</p><h2>Ask about your current lesson.</h2><form onSubmit={askTutor}><input value={tutorPrompt} onChange={(event) => setTutorPrompt(event.target.value)} placeholder="Explain this simply..." required /><button type="submit">Ask</button></form>{tutorAnswer && <p>{tutorAnswer}</p>}</section></>}
+        </section>
+        {quiz && <div className="quiz-modal"><div><button className="modal-close" type="button" onClick={() => setQuiz(null)}>Close</button><p className="eyebrow">QUICK CHECK</p><h2>{quiz.question}</h2>{quiz.options.map((option, index) => <button className="quiz-option" type="button" key={option} onClick={() => answerQuiz(index)}>{option}</button>)}</div></div>}
+        {quizFeedback && <button className="feedback-toast" type="button" onClick={() => setQuizFeedback('')}>{quizFeedback}</button>}
       </main>
     )
   }
@@ -224,6 +313,12 @@ function App() {
           {isSignup && <div className="card-rule" />}
 
           <form onSubmit={handleSubmit}>
+            {isSignup && <>
+              <label htmlFor="display-name">DISPLAY NAME</label>
+              <input className="standalone-input" id="display-name" type="text" placeholder="How should we call you?" value={displayName} onChange={(event) => setDisplayName(event.target.value)} required />
+              <label htmlFor="username">USERNAME</label>
+              <input className="standalone-input" id="username" type="text" placeholder="Choose a username" value={username} onChange={(event) => setUsername(event.target.value)} required />
+            </>}
             <label htmlFor="email">EMAIL ADDRESS</label>
             <div className="input-wrap">
               <span className="field-icon" aria-hidden="true">✉</span>
@@ -258,6 +353,17 @@ function App() {
                 <EyeIcon hidden={showPassword} />
               </button>
             </div>
+
+            {isSignup && <>
+              <label htmlFor="confirm-password">CONFIRM PASSWORD</label>
+              <div className="input-wrap">
+                <span className="field-icon" aria-hidden="true"><KeyIcon /></span>
+                <input id="confirm-password" type={showConfirmPassword ? 'text' : 'password'} placeholder="Repeat your password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required />
+                <button className="visibility-button" type="button" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={showConfirmPassword ? 'Hide confirmed password' : 'Show confirmed password'}>
+                  <EyeIcon hidden={showConfirmPassword} />
+                </button>
+              </div>
+            </>}
 
             <button className="submit-button" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'PLEASE WAIT...' : isSignup ? 'CONTINUE & JOIN' : 'LOG IN'}

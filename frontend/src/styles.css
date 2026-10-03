@@ -159,6 +159,12 @@ form {
 }
 
 label {
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
   margin-top: 2px;
   color: #b5bbd2;
   font-size: 0.66rem;
@@ -207,6 +213,20 @@ input {
   background: transparent;
   color: #f7f7fa;
   font-size: 0.86rem;
+}
+
+.standalone-input {
+  min-height: 46px;
+  margin-bottom: 7px;
+  padding: 0 13px;
+  border: 1px solid #343746;
+  border-radius: 11px;
+  background: #0f1118;
+}
+
+.standalone-input:focus {
+  border-color: #aebdff;
+  box-shadow: 0 0 0 3px rgba(174, 189, 255, 0.12);
 }
 
 input::placeholder {
@@ -417,6 +437,342 @@ input::placeholder {
   text-decoration: underline;
 }
 
+.app-shell {
+  min-height: 100vh;
+  background: #0b0c10;
+  color: #f5f5f7;
+}
+
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 16px clamp(18px, 5vw, 72px);
+  border-bottom: 1px solid #262936;
+  background: rgba(11, 12, 16, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b9c8ff;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-links button,
+.profile-button {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8d94ad;
+  padding: 9px 12px;
+  font-size: 0.78rem;
+}
+
+.nav-links button.active,
+.nav-links button:hover,
+.profile-button:hover {
+  background: #1e1e2e;
+  color: #e2e7ff;
+}
+
+.profile-button {
+  color: #c4caff;
+}
+
+.app-content {
+  width: min(100% - 32px, 980px);
+  margin: 0 auto;
+  padding: 58px 0 80px;
+}
+
+.page-heading {
+  margin-bottom: 30px;
+}
+
+.page-heading h1 {
+  max-width: 650px;
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.page-heading > p:last-child {
+  color: #989fb8;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #b9c8ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.lesson-feed {
+  display: grid;
+  gap: 18px;
+}
+
+.lesson-card {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  overflow: hidden;
+  border: 1px solid #303340;
+  border-radius: 16px;
+  background: #191b24;
+}
+
+.lesson-visual {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  background: linear-gradient(145deg, #242943, #11131d);
+  color: #b9c8ff;
+  font-size: 1.3rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.lesson-body {
+  padding: 24px;
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 10px;
+  color: #aebcff;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.lesson-body h2 {
+  margin: 12px 0 10px;
+  font-size: 1.6rem;
+}
+
+.lesson-body p {
+  color: #b4b9cb;
+  line-height: 1.6;
+}
+
+.lesson-body strong {
+  display: block;
+  margin-top: 18px;
+  color: #e2e7ff;
+  font-size: 0.88rem;
+}
+
+.lesson-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.lesson-actions button,
+.search-form button,
+.tutor-panel button {
+  border: 1px solid #9daff5;
+  border-radius: 7px;
+  background: #1e1e2e;
+  color: #dce3ff;
+  padding: 9px 12px;
+  font-size: 0.72rem;
+}
+
+.lesson-actions button:hover,
+.search-form button:hover,
+.tutor-panel button:hover {
+  background: #b9c8ff;
+  color: #101321;
+}
+
+.search-form,
+.tutor-panel form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.search-form input,
+.tutor-panel input {
+  min-height: 45px;
+  padding: 0 14px;
+  border: 1px solid #343746;
+  border-radius: 8px;
+  background: #0f1118;
+}
+
+.search-form input {
+  flex: 1;
+}
+
+.discover-list,
+.saved-list {
+  display: grid;
+  gap: 10px;
+}
+
+.discover-list button,
+.saved-list article {
+  display: grid;
+  gap: 7px;
+  padding: 18px;
+  border: 1px solid #303340;
+  border-radius: 12px;
+  background: #191b24;
+  color: #f5f5f7;
+  text-align: left;
+}
+
+.discover-list button:hover {
+  border-color: #b9c8ff;
+}
+
+.discover-list span,
+.saved-list span {
+  color: #b9c8ff;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.discover-list small {
+  color: #969db5;
+}
+
+.saved-list article button {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #b9c8ff;
+  padding: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stats-grid div {
+  display: grid;
+  gap: 8px;
+  padding: 22px;
+  border: 1px solid #303340;
+  border-radius: 12px;
+  background: #191b24;
+}
+
+.stats-grid strong {
+  color: #b9c8ff;
+  font-size: 2rem;
+}
+
+.stats-grid span {
+  color: #a0a7bd;
+  font-size: 0.75rem;
+}
+
+.tutor-panel {
+  padding: 24px;
+  border: 1px solid #303340;
+  border-radius: 14px;
+  background: #191b24;
+}
+
+.tutor-panel h2 {
+  margin: 10px 0 20px;
+}
+
+.tutor-panel input {
+  flex: 1;
+}
+
+.tutor-panel > p:last-child {
+  color: #c0c6dc;
+  line-height: 1.6;
+}
+
+.empty-state {
+  padding: 30px 0;
+  color: #969db5;
+}
+
+.quiz-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 6, 10, 0.78);
+}
+
+.quiz-modal > div {
+  width: min(100%, 500px);
+  padding: 28px;
+  border: 1px solid #444a61;
+  border-radius: 16px;
+  background: #191b24;
+}
+
+.modal-close {
+  float: right;
+  border: 0;
+  background: transparent;
+  color: #aab1c8;
+}
+
+.quiz-modal h2 {
+  margin: 18px 0;
+}
+
+.quiz-option {
+  display: block;
+  width: 100%;
+  margin-top: 9px;
+  padding: 13px;
+  border: 1px solid #40465b;
+  border-radius: 8px;
+  background: #1e1e2e;
+  color: #e6e9f4;
+  text-align: left;
+}
+
+.quiz-option:hover {
+  border-color: #b9c8ff;
+}
+
+.feedback-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+  max-width: 360px;
+  padding: 15px 18px;
+  border: 1px solid #9daff5;
+  border-radius: 10px;
+  background: #1e1e2e;
+  color: #e1e6ff;
+  text-align: left;
+}
+
 @media (max-width: 520px) {
   .auth-shell {
     padding: 28px 16px 32px;
@@ -428,6 +784,39 @@ input::placeholder {
 
   .auth-header h1 {
     margin-top: 22px;
+  }
+
+  .app-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app-content {
+    width: min(100% - 24px, 980px);
+    padding-top: 34px;
+  }
+
+  .lesson-card {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-visual {
+    min-height: 120px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .interest-grid {

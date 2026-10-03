@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "seed": "tsx src/seed.ts",
     "start": "node dist/server.js"
   },
   "dependencies": {
     "cors": "latest",
     "dotenv": "latest",
-    "express": "latest"
+    "express": "latest",
+    "mongoose": "latest"
   },
   "devDependencies": {
     "@types/cors": "latest",

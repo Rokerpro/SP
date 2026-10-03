@@ -32,7 +32,15 @@ curl http://localhost:3001/api/health
 docker compose up -d mongodb
 ```
 
-MongoDB is exposed on port 27017 with persistent storage in the `bolt-mongodb` Docker volume. Database models and seed data will be added in Phase 2.
+MongoDB is exposed on port 27017 with persistent storage in the `bolt-mongodb` Docker volume.
+
+Seed the lesson collection after MongoDB is running:
+
+```bash
+npm run seed --workspace backend
+```
+
+The API exposes `GET /api/lessons` and `GET /api/lessons/:slug` for the seeded lesson data.
 
 ### Build
 

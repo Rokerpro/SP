@@ -967,16 +967,27 @@ input::placeholder {
   border-right: 1px solid #37383b;
   border-bottom: 0;
   background: #111214;
+  overflow: hidden;
+  transition: width 180ms ease, box-shadow 180ms ease;
+}
+
+.reels-rail:hover {
+  width: 220px;
+  box-shadow: 12px 0 30px rgba(0, 0, 0, 0.28);
 }
 
 .reels-rail .app-brand {
   width: 100%;
-  justify-content: center;
-  font-size: 0;
+  justify-content: flex-start;
+  padding-left: 10px;
 }
 
-.reels-rail .app-brand .bolt-icon {
-  font-size: 24px;
+.reels-rail .app-brand .bolt-logo span {
+  display: none;
+}
+
+.reels-rail:hover .app-brand .bolt-logo span {
+  display: inline;
 }
 
 .reels-rail .nav-links {
@@ -987,15 +998,20 @@ input::placeholder {
 }
 
 .reels-rail .nav-links button {
-  display: grid;
+  display: flex;
   width: 52px;
   height: 52px;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   padding: 0;
   border: 1px solid transparent;
   border-radius: 50%;
   color: #929397;
   font-size: 0;
+  text-align: left;
+  white-space: nowrap;
+  transition: width 180ms ease, justify-content 180ms ease, border-radius 180ms ease;
 }
 
 .reels-rail .nav-links button::before {
@@ -1008,6 +1024,14 @@ input::placeholder {
 .reels-rail .nav-links button:nth-child(2)::before { content: '⌕'; }
 .reels-rail .nav-links button:nth-child(3)::before { content: '◇'; }
 .reels-rail .nav-links button:nth-child(4)::before { content: '▥'; }
+
+.reels-rail:hover .nav-links button {
+  width: 196px;
+  justify-content: flex-start;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+}
 
 .reels-rail .nav-links button.active,
 .reels-rail .nav-links button:hover {
@@ -1026,11 +1050,24 @@ input::placeholder {
   background: #252629;
   color: #d7d8dc;
   font-size: 0;
+  white-space: nowrap;
+  transition: width 180ms ease, border-radius 180ms ease, font-size 180ms ease;
 }
 
 .reels-rail .profile-button::after {
   content: '•';
   font-size: 27px;
+}
+
+.reels-rail:hover .profile-button {
+  width: 196px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+.reels-rail:hover .profile-button::after {
+  display: none;
 }
 
 .reels-content {
@@ -1277,6 +1314,13 @@ input::placeholder {
     padding: 5px 12px;
     border-top: 1px solid #37383b;
     border-right: 0;
+    overflow: visible;
+    transition: none;
+  }
+
+  .reels-rail:hover {
+    width: 100%;
+    box-shadow: none;
   }
 
   .reels-rail .app-brand,
@@ -1284,6 +1328,11 @@ input::placeholder {
     width: 42px;
     height: 42px;
     margin: 0;
+  }
+
+  .reels-rail .app-brand .bolt-logo span,
+  .reels-rail:hover .app-brand .bolt-logo span {
+    display: none;
   }
 
   .reels-rail .nav-links {

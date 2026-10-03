@@ -83,7 +83,7 @@ export function HomePage({
   return (
     <main className={`app-shell${activeView === 'home' ? ' reels-page' : ''}`}>
       <nav className={`app-nav${activeView === 'home' ? ' reels-rail' : ''}`}>
-        <div className="app-brand"><BoltLogo compact /></div>
+        <div className="app-brand"><BoltLogo /></div>
         <div className="nav-links" aria-label="Main navigation">
           {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => onViewChange(view)}>{label}</button>)}
         </div>

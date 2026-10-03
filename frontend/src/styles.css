@@ -964,9 +964,9 @@ input::placeholder {
   justify-content: flex-start;
   gap: 24px;
   padding: 18px 14px;
-  border-right: 1px solid #c8c9c7;
+  border-right: 1px solid #30323a;
   border-bottom: 0;
-  background: #f0f0ee;
+  background: #0b0c10;
   overflow: visible;
 }
 
@@ -974,12 +974,12 @@ input::placeholder {
   width: 100%;
   justify-content: center;
   padding: 6px 0 12px;
-  border-bottom: 1px solid #c8c9c7;
+  border-bottom: 1px solid #30323a;
 }
 
 .reels-rail .app-brand .bolt-logo span {
   display: inline;
-  color: #1b1c20;
+  color: #f5f5f7;
   font-size: 0.9rem;
 }
 
@@ -998,10 +998,10 @@ input::placeholder {
   justify-content: center;
   gap: 12px;
   padding: 9px;
-  border: 1px solid #b9bab8;
+  border: 1px solid #343746;
   border-radius: 2px;
-  background: #f7f7f5;
-  color: #292a2d;
+  background: #1e1e2e;
+  color: #dfe3f4;
   font-size: 0.73rem;
   text-align: left;
   white-space: nowrap;
@@ -1024,9 +1024,9 @@ input::placeholder {
 
 .reels-rail .nav-links button.active,
 .reels-rail .nav-links button:hover {
-  border-color: #7c7d7b;
-  background: #d1d2d0;
-  color: #17181b;
+  border-color: #b9c8ff;
+  background: #b9c8ff;
+  color: #131623;
   transform: translateX(2px);
 }
 
@@ -1034,10 +1034,10 @@ input::placeholder {
   width: 100%;
   height: 72px;
   margin-top: auto;
-  border: 1px solid #b9bab8;
+  border: 1px solid #343746;
   border-radius: 2px;
-  background: #f7f7f5;
-  color: #292a2d;
+  background: #1e1e2e;
+  color: #dfe3f4;
   font-size: 0.7rem;
   white-space: normal;
 }
@@ -1313,7 +1313,7 @@ input::placeholder {
     justify-content: space-between;
     gap: 0;
     padding: 5px 12px;
-    border-top: 1px solid #c8c9c7;
+    border-top: 1px solid #30323a;
     border-right: 0;
     overflow: visible;
     transition: none;

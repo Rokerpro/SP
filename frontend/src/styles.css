@@ -135,19 +135,6 @@ button {
   letter-spacing: 0.04em;
 }
 
-.back-button {
-  border: 0;
-  background: transparent;
-  color: #9da4bf;
-  font-size: 1.7rem;
-  line-height: 1;
-}
-
-.back-button:hover,
-.back-button:focus-visible {
-  color: #b9c8ff;
-}
-
 .card-rule {
   height: 1px;
   margin: 18px 0 26px;

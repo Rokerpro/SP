@@ -37,11 +37,6 @@ function App() {
               <h2 id="form-title">{isSignup ? 'CREATE YOUR ACCOUNT' : 'WELCOME BACK'}</h2>
               <p>{isSignup ? 'Start with your email and password' : 'Log in to continue your path'}</p>
             </div>
-            {isSignup && (
-              <button className="back-button" type="button" onClick={() => setMode('login')} aria-label="Back to login">
-                <span aria-hidden="true">←</span>
-              </button>
-            )}
           </div>
 
           {isSignup && <div className="card-rule" />}

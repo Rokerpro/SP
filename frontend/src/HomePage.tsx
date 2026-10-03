@@ -186,7 +186,7 @@ export function HomePage({
       .then((result) => {
         if (result.success) setLeaderboardItems(result.data)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [activeView])
 
   useEffect(() => {
@@ -202,7 +202,7 @@ export function HomePage({
           setRealSuggestedUsers(result.data)
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [activeView, friendQuery])
 
   useEffect(() => {
@@ -220,7 +220,7 @@ export function HomePage({
         if (pendingRes.success) setPendingPosts(pendingRes.data)
         if (usersRes.success) setAdminUsers(usersRes.data)
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [activeView, userRole])
 
   const currentItem = reelSequence[lessonIndex]

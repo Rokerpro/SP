@@ -13,11 +13,14 @@
     "cors": "latest",
     "dotenv": "latest",
     "express": "latest",
+    "bcryptjs": "latest",
+    "jsonwebtoken": "latest",
     "mongoose": "latest"
   },
   "devDependencies": {
     "@types/cors": "latest",
     "@types/express": "latest",
+    "@types/jsonwebtoken": "latest",
     "@types/node": "latest",
     "tsx": "latest",
     "typescript": "latest"

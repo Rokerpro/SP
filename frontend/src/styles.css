@@ -39,6 +39,10 @@ button {
   margin: 0 auto;
 }
 
+.interests-layout {
+  width: min(100%, 430px);
+}
+
 .auth-header {
   text-align: center;
 }
@@ -233,6 +237,125 @@ input::placeholder {
   transform: translateY(0);
 }
 
+.submit-button:disabled,
+.continue-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.form-message {
+  margin: 16px 0 0;
+  color: #c3ceff;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.interests-card {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.interest-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.interest-option {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 82px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 9px 4px 8px;
+  border: 1px solid #b9c8ff;
+  border-radius: 11px;
+  background: #1e1e2e;
+  color: #e4e6f0;
+  font-size: 0.62rem;
+  letter-spacing: -0.01em;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.interest-option:hover,
+.interest-option:focus-visible {
+  transform: translateY(-2px);
+}
+
+.interest-option.selected {
+  background: #b9c8ff;
+  color: #131623;
+}
+
+.interest-icon {
+  display: block;
+  min-height: 30px;
+  color: #e3e7ff;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.interest-option.selected .interest-icon {
+  color: #171a29;
+}
+
+.interest-check {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  display: grid;
+  width: 12px;
+  height: 12px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 0.55rem;
+  line-height: 1;
+}
+
+.interest-option.selected .interest-check {
+  border-color: #171a29;
+}
+
+.continue-button {
+  width: min(100%, 265px);
+  min-height: 47px;
+  margin-top: 18px;
+  border: 1px solid #b9c8ff;
+  border-radius: 11px;
+  background: #1e1e2e;
+  color: #e4e6f0;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.continue-button.ready {
+  background: #b9c8ff;
+  color: #131623;
+}
+
+.continue-button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.selection-hint {
+  margin: 10px 0 0;
+  color: #d0d2df;
+  font-size: 0.74rem;
+  text-decoration: underline;
+}
+
+.selection-hint.ready-text {
+  color: #b9c8ff;
+  text-decoration: none;
+}
+
 .switch-mode {
   margin: 22px 0 0;
   color: #9fa6c0;
@@ -266,5 +389,14 @@ input::placeholder {
 
   .auth-header h1 {
     margin-top: 22px;
+  }
+
+  .interest-grid {
+    gap: 6px;
+  }
+
+  .interest-option {
+    min-height: 76px;
+    font-size: 0.55rem;
   }
 }

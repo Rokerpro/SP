@@ -189,8 +189,10 @@ function App() {
   }
 
   function completeSignup() {
+    setActiveView('home')
     setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
     setStep('auth')
+    setSelectedPeople([])
   }
 
   function handleLogout() {

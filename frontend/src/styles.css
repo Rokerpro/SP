@@ -43,6 +43,10 @@ button {
   width: min(100%, 430px);
 }
 
+.people-layout {
+  width: min(100%, 470px);
+}
+
 .signed-in-layout {
   width: min(100%, 448px);
 }
@@ -109,6 +113,10 @@ button {
 
 .progress-fill.interests-progress {
   width: 66.666%;
+}
+
+.progress-fill.people-progress {
+  width: 100%;
 }
 
 .auth-header small {
@@ -415,6 +423,81 @@ input::placeholder {
   text-decoration: none;
 }
 
+.people-intro {
+  margin: 8px 0 18px;
+  color: #9ea4bd;
+  font-size: 0.78rem;
+}
+
+.people-search {
+  width: 100%;
+}
+
+.people-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+
+.person-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #343746;
+  border-radius: 10px;
+  background: #0f1118;
+  color: #f7f7fa;
+  text-align: left;
+}
+
+.person-option:hover,
+.person-option.selected {
+  border-color: #b9c8ff;
+  background: #1e1e2e;
+}
+
+.person-avatar {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #b9c8ff;
+  color: #131623;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.person-option strong,
+.person-option small {
+  display: block;
+}
+
+.person-option small {
+  margin-top: 2px;
+  color: #9299b4;
+  font-size: 0.68rem;
+}
+
+.person-action {
+  margin-left: auto;
+  color: #b9c8ff;
+  font-size: 0.72rem;
+}
+
+.skip-button {
+  display: block;
+  margin: 12px auto 0;
+  border: 0;
+  background: transparent;
+  color: #9ea4bd;
+  font-size: 0.73rem;
+  text-decoration: underline;
+}
+
 .switch-mode {
   margin: 22px 0 0;
   color: #9fa6c0;
@@ -463,13 +546,6 @@ input::placeholder {
   color: #b9c8ff;
   font-weight: 900;
   letter-spacing: 0.12em;
-}
-
-.app-step {
-  color: #9299b4;
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
 }
 
 .nav-links {

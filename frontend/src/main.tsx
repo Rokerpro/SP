@@ -24,6 +24,13 @@ type AuthUser = { id: string; email: string; username: string; displayName: stri
 type Lesson = { slug: string; category: string; title: string; topic: string; explanation: string; takeaway: string; difficulty: string; visualKey: string; relatedTopics: string[] }
 type ProgressStats = { conceptsLearned: number; quizAccuracy: number; savedLessons: number; streak: number; categoryProgress: Record<string, { completed: number; total: number }> }
 type AppView = 'home' | 'discover' | 'saved' | 'progress'
+type SignupStep = 'auth' | 'interests' | 'people'
+
+const peopleSuggestions = [
+  { username: 'alexbolt', name: 'Alex M.', initials: 'AM' },
+  { username: 'mayabolt', name: 'Maya R.', initials: 'MR' },
+  { username: 'sambolt', name: 'Sam T.', initials: 'ST' },
+]
 
 function KeyIcon() {
   return (
@@ -56,8 +63,10 @@ function App() {
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [step, setStep] = useState<'auth' | 'interests'>('auth')
+  const [step, setStep] = useState<SignupStep>('auth')
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
+  const [peopleQuery, setPeopleQuery] = useState('')
+  const [selectedPeople, setSelectedPeople] = useState<string[]>([])
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null)
@@ -139,8 +148,12 @@ function App() {
 
       localStorage.setItem('bolt-token', result.data.token)
       setSelectedInterests(result.data.user.interests)
-      setPendingUser(result.data.user)
-      setStep('interests')
+      if (isSignup) {
+        setPendingUser(result.data.user)
+        setStep('interests')
+      } else {
+        setSessionUser(result.data.user)
+      }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to continue')
     } finally {
@@ -161,13 +174,22 @@ function App() {
       })
       const result = await response.json() as { success: boolean; error?: string }
       if (!response.ok || !result.success) throw new Error(result.error ?? 'Unable to save interests')
-      setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
-      setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
+      setPendingUser((current) => current ? { ...current, interests: selectedInterests } : current)
+      setStep('people')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to save interests')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  function togglePerson(usernameToToggle: string) {
+    setSelectedPeople((current) => current.includes(usernameToToggle) ? current.filter((item) => item !== usernameToToggle) : [...current, usernameToToggle])
+  }
+
+  function completeSignup() {
+    setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
+    setStep('auth')
   }
 
   function handleLogout() {
@@ -232,7 +254,6 @@ function App() {
       <main className="app-shell">
         <nav className="app-nav">
           <div className="app-brand"><span className="bolt-icon">✦</span> BOLT</div>
-          <span className="app-step">3 of 3 Steps</span>
           <div className="nav-links">
             {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => setActiveView(view)}>{label}</button>)}
           </div>
@@ -282,6 +303,36 @@ function App() {
             </button>
             <p className={`selection-hint${canContinue ? ' ready-text' : ''}`}>{canContinue ? `${selectedInterests.length} topics selected` : 'select at least 3'}</p>
             {error && <p className="form-message">{error}</p>}
+          </section>
+        </div>
+      </main>
+    )
+  }
+
+  if (step === 'people') {
+    const visiblePeople = peopleSuggestions.filter((person) => `${person.name} ${person.username}`.toLowerCase().includes(peopleQuery.toLowerCase()))
+    return (
+      <main className="auth-shell">
+        <div className="auth-layout people-layout">
+          <header className="auth-header">
+            <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
+            <h1>FIND PEOPLE YOU KNOW</h1>
+            <p>CONNECT WITH YOUR CIRCLE</p>
+            <div className="progress-track" aria-label="3 of 3 steps"><span className="progress-fill people-progress" /></div>
+            <small>3 of 3 Steps</small>
+          </header>
+          <section className="auth-card people-card" aria-labelledby="people-title">
+            <h2 id="people-title">FIND PEOPLE YOU KNOW</h2>
+            <p className="people-intro">Search for friends by name or username.</p>
+            <input className="standalone-input people-search" value={peopleQuery} onChange={(event) => setPeopleQuery(event.target.value)} placeholder="Search people" />
+            <div className="people-list">
+              {visiblePeople.map((person) => {
+                const selected = selectedPeople.includes(person.username)
+                return <button className={`person-option${selected ? ' selected' : ''}`} key={person.username} type="button" onClick={() => togglePerson(person.username)} aria-pressed={selected}><span className="person-avatar">{person.initials}</span><span><strong>{person.name}</strong><small>@{person.username}</small></span><span className="person-action">{selected ? 'Added' : 'Add'}</span></button>
+              })}
+            </div>
+            <button className="continue-button ready" type="button" onClick={completeSignup}>COMPLETE SIGNUP</button>
+            <button className="skip-button" type="button" onClick={completeSignup}>Skip for now</button>
           </section>
         </div>
       </main>

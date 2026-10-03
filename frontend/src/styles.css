@@ -959,35 +959,28 @@ input::placeholder {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 76px;
+  width: 178px;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 34px;
-  padding: 28px 12px;
-  border-right: 1px solid #37383b;
+  gap: 24px;
+  padding: 18px 14px;
+  border-right: 1px solid #c8c9c7;
   border-bottom: 0;
-  background: #111214;
-  overflow: hidden;
-  transition: width 180ms ease, box-shadow 180ms ease;
-}
-
-.reels-rail:hover {
-  width: 220px;
-  box-shadow: 12px 0 30px rgba(0, 0, 0, 0.28);
+  background: #f0f0ee;
+  overflow: visible;
 }
 
 .reels-rail .app-brand {
   width: 100%;
-  justify-content: flex-start;
-  padding-left: 10px;
+  justify-content: center;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid #c8c9c7;
 }
 
 .reels-rail .app-brand .bolt-logo span {
-  display: none;
-}
-
-.reels-rail:hover .app-brand .bolt-logo span {
   display: inline;
+  color: #1b1c20;
+  font-size: 0.9rem;
 }
 
 .reels-rail .nav-links {
@@ -999,25 +992,29 @@ input::placeholder {
 
 .reels-rail .nav-links button {
   display: flex;
-  width: 52px;
-  height: 52px;
+  width: 100%;
+  height: 78px;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 50%;
-  color: #929397;
-  font-size: 0;
+  padding: 9px;
+  border: 1px solid #b9bab8;
+  border-radius: 2px;
+  background: #f7f7f5;
+  color: #292a2d;
+  font-size: 0.73rem;
   text-align: left;
   white-space: nowrap;
-  transition: width 180ms ease, justify-content 180ms ease, border-radius 180ms ease;
+  transition: background 150ms ease, transform 150ms ease;
 }
 
 .reels-rail .nav-links button::before {
-  content: '○';
-  font-size: 27px;
+  content: '⌂';
+  width: 22px;
+  color: #35363a;
+  font-size: 1.35rem;
   line-height: 1;
+  text-align: center;
 }
 
 .reels-rail .nav-links button:nth-child(1)::before { content: '⌂'; }
@@ -1025,55 +1022,37 @@ input::placeholder {
 .reels-rail .nav-links button:nth-child(3)::before { content: '◇'; }
 .reels-rail .nav-links button:nth-child(4)::before { content: '▥'; }
 
-.reels-rail:hover .nav-links button {
-  width: 196px;
-  justify-content: flex-start;
-  padding: 0 16px;
-  border-radius: 12px;
-  font-size: 0.78rem;
-}
-
 .reels-rail .nav-links button.active,
 .reels-rail .nav-links button:hover {
-  border-color: #77787c;
-  background: #242527;
-  color: #f5f5f5;
+  border-color: #7c7d7b;
+  background: #d1d2d0;
+  color: #17181b;
+  transform: translateX(2px);
 }
 
 .reels-rail .profile-button {
-  width: 52px;
-  height: 52px;
+  width: 100%;
+  height: 72px;
   margin-top: auto;
-  overflow: hidden;
-  border: 1px solid #5e6065;
-  border-radius: 50%;
-  background: #252629;
-  color: #d7d8dc;
-  font-size: 0;
-  white-space: nowrap;
-  transition: width 180ms ease, border-radius 180ms ease, font-size 180ms ease;
+  border: 1px solid #b9bab8;
+  border-radius: 2px;
+  background: #f7f7f5;
+  color: #292a2d;
+  font-size: 0.7rem;
+  white-space: normal;
 }
 
 .reels-rail .profile-button::after {
-  content: '•';
-  font-size: 27px;
-}
-
-.reels-rail:hover .profile-button {
-  width: 196px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  text-align: left;
-}
-
-.reels-rail:hover .profile-button::after {
-  display: none;
+  content: '◯';
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1.25rem;
 }
 
 .reels-content {
   width: 100%;
   min-height: 100vh;
-  padding: 34px 32px 50px;
+  padding: 34px 32px 50px 210px;
 }
 
 .reels-heading {
@@ -1334,15 +1313,10 @@ input::placeholder {
     justify-content: space-between;
     gap: 0;
     padding: 5px 12px;
-    border-top: 1px solid #37383b;
+    border-top: 1px solid #c8c9c7;
     border-right: 0;
     overflow: visible;
     transition: none;
-  }
-
-  .reels-rail:hover {
-    width: 100%;
-    box-shadow: none;
   }
 
   .reels-rail .app-brand,
@@ -1352,8 +1326,7 @@ input::placeholder {
     margin: 0;
   }
 
-  .reels-rail .app-brand .bolt-logo span,
-  .reels-rail:hover .app-brand .bolt-logo span {
+  .reels-rail .app-brand .bolt-logo span {
     display: none;
   }
 
@@ -1369,6 +1342,9 @@ input::placeholder {
   .reels-rail .nav-links button {
     width: 45px;
     height: 45px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 0;
   }
 
   .reels-content {

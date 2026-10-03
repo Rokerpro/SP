@@ -101,13 +101,13 @@ export function HomePage({
 
   return (
     <main className={`app-shell${activeView === 'home' ? ' reels-page' : ''}`}>
-      {activeView !== 'home' && <nav className="app-nav">
+      <nav className={`app-nav${activeView === 'home' ? ' reels-rail' : ''}`}>
         <div className="app-brand"><BoltLogo /></div>
         <div className="nav-links" aria-label="Main navigation">
           {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => onViewChange(view)}>{label}</button>)}
         </div>
         <button className="profile-button" type="button" onClick={onLogout}>{displayName}</button>
-      </nav>}
+      </nav>
         <section className={`app-content${activeView === 'home' ? ' reels-content' : ''}`}>
         {activeView === 'home' && <>
           <header className="reels-heading"><p className="eyebrow">YOUR DAILY BOLT</p><h1>One idea at a time.</h1><p>Scroll to keep learning.</p></header>

@@ -26,6 +26,8 @@ The frontend runs at http://localhost:5173 and the API runs at http://localhost:
 curl http://localhost:3001/api/health
 ```
 
+The Vite development server proxies `/api` to `BACKEND_URL`, so the frontend can be opened through a tunnel without exposing a second backend port. Set `BACKEND_URL` in `.env` when the API runs somewhere other than `localhost:3001`.
+
 ### Start MongoDB
 
 ```bash

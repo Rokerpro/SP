@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
-const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api'
+const apiUrl = import.meta.env.VITE_API_URL ?? '/api'
 
 const interestOptions = [
   ['AI Skills', '✣'],

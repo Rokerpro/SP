@@ -79,9 +79,13 @@ button {
 }
 
 .bolt-logo img {
+  display: block;
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   object-fit: contain;
+  opacity: 1;
 }
 
 .brand-mark .bolt-logo {
@@ -92,6 +96,8 @@ button {
 .app-brand .bolt-logo img {
   width: 30px;
   height: 30px;
+  min-width: 30px;
+  min-height: 30px;
 }
 
 .bolt-logo.compact span {

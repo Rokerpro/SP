@@ -1,6 +1,8 @@
 import 'dotenv/config'
+import { hashPassword } from './auth.js'
 import { connectDatabase, disconnectDatabase } from './db.js'
 import { Lesson, type LessonDocument } from './models/lesson.js'
+import { User } from './models/user.js'
 
 const lessons: LessonDocument[] = [
   { slug: 'sky-blue', category: 'Science', title: 'Why is the sky blue?', topic: 'Light scattering', explanation: 'Air molecules scatter short blue wavelengths of sunlight more strongly than long red wavelengths, spreading blue light across the daytime sky.', takeaway: 'Blue light gets scattered most by the atmosphere.', difficulty: 'Beginner', visualKey: 'prism', relatedTopics: ['light', 'atmosphere', 'color'] },
@@ -38,8 +40,21 @@ const lessons: LessonDocument[] = [
   { slug: 'inflation', category: 'Economics', title: 'What inflation changes', topic: 'Purchasing power', explanation: 'Inflation is a broad rise in prices that means each unit of currency buys fewer goods and services than before.', takeaway: 'Inflation reduces purchasing power when income does not keep pace.', difficulty: 'Beginner', visualKey: 'price-tag', relatedTopics: ['money', 'prices', 'economy'] },
 ]
 
+const demoProfiles = [
+  { email: 'alex@bolt.demo', password: 'BoltDemo123!', interests: ['Space', 'Science', 'Technology'] },
+  { email: 'maya@bolt.demo', password: 'BoltLearn123!', interests: ['Psychology', 'Literature', 'History'] },
+  { email: 'sam@bolt.demo', password: 'BoltGreen123!', interests: ['Environment', 'Science', 'Economics'] },
+]
+
 await connectDatabase()
 await Lesson.deleteMany({})
 await Lesson.insertMany(lessons)
 console.log(`Seeded ${lessons.length} lessons`)
+await User.deleteMany({ email: { $in: demoProfiles.map((profile) => profile.email) } })
+await User.insertMany(await Promise.all(demoProfiles.map(async (profile) => ({
+  email: profile.email,
+  passwordHash: await hashPassword(profile.password),
+  interests: profile.interests,
+}))))
+console.log(`Seeded ${demoProfiles.length} demo profiles`)
 await disconnectDatabase()

@@ -42,6 +42,14 @@ npm run seed --workspace backend
 
 The API exposes `GET /api/lessons` and `GET /api/lessons/:slug` for the seeded lesson data.
 
+Demo accounts created by the seed command:
+
+| Email | Password |
+| --- | --- |
+| `alex@bolt.demo` | `BoltDemo123!` |
+| `maya@bolt.demo` | `BoltLearn123!` |
+| `sam@bolt.demo` | `BoltGreen123!` |
+
 ### Build
 
 ```bash

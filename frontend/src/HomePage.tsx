@@ -80,18 +80,19 @@ export function HomePage({
   onAskTutor,
 }: HomePageProps) {
   return (
-    <main className="app-shell">
-      <nav className="app-nav">
+    <main className={`app-shell${activeView === 'home' ? ' reels-page' : ''}`}>
+      <nav className={`app-nav${activeView === 'home' ? ' reels-rail' : ''}`}>
         <div className="app-brand"><span className="bolt-icon">✦</span> BOLT</div>
-        <div className="nav-links">
+        <div className="nav-links" aria-label="Main navigation">
           {([['home', 'Learn'], ['discover', 'Discover'], ['saved', 'Saved'], ['progress', 'Progress']] as const).map(([view, label]) => <button className={activeView === view ? 'active' : ''} key={view} type="button" onClick={() => onViewChange(view)}>{label}</button>)}
         </div>
         <button className="profile-button" type="button" onClick={onLogout}>{displayName}</button>
       </nav>
-      <section className="app-content">
+        <section className={`app-content${activeView === 'home' ? ' reels-content' : ''}`}>
         {activeView === 'home' && <>
-          <header className="page-heading"><p className="eyebrow">YOUR DAILY BOLT</p><h1>Keep your curiosity moving.</h1><p>Short lessons, sharp ideas, better recall.</p></header>
-          <div className="lesson-feed">{lessons.map((lesson) => <article className="lesson-card" key={lesson.slug}><div className="lesson-visual"><span>{lesson.visualKey}</span></div><div className="lesson-body"><div className="lesson-meta"><span>{lesson.category}</span><span>{lesson.difficulty}</span></div><h2>{lesson.title}</h2><p>{lesson.explanation}</p><strong>{lesson.takeaway}</strong><div className="lesson-actions"><button type="button" onClick={() => onCompleteLesson(lesson)}>Mark learned</button><button type="button" onClick={() => onToggleSaved(lesson)}>{savedLessons.some((item) => item.slug === lesson.slug) ? 'Saved' : 'Save'}</button><button type="button" onClick={() => onOpenQuiz(lesson)}>Quiz</button></div></div></article>)}</div>
+          <header className="reels-heading"><p className="eyebrow">YOUR DAILY BOLT</p><h1>One idea at a time.</h1><p>Scroll to keep learning.</p></header>
+          <div className="lesson-feed reels-feed">{lessons.map((lesson) => <article className="lesson-card reel-card" key={lesson.slug}><div className="reel-visual"><span className="reel-visual-label">{lesson.visualKey}</span><span className="reel-play" aria-hidden="true">▶</span><div className="reel-overlay"><div className="lesson-meta"><span>{lesson.category}</span><span>{lesson.difficulty}</span></div><h2>{lesson.title}</h2><p>{lesson.explanation}</p><strong>{lesson.takeaway}</strong></div></div><div className="reel-actions"><button type="button" onClick={() => onCompleteLesson(lesson)} aria-label="Mark lesson learned"><span>♥</span><small>Learn</small></button><button type="button" onClick={() => onToggleSaved(lesson)} aria-label={savedLessons.some((item) => item.slug === lesson.slug) ? 'Remove saved lesson' : 'Save lesson'}><span>{savedLessons.some((item) => item.slug === lesson.slug) ? '◆' : '◇'}</span><small>{savedLessons.some((item) => item.slug === lesson.slug) ? 'Saved' : 'Save'}</small></button><button type="button" onClick={() => onOpenQuiz(lesson)} aria-label="Open lesson quiz"><span>?</span><small>Quiz</small></button></div></article>)}</div>
+          <div className="reel-stepper" aria-label="Lesson navigation"><button type="button" aria-label="Previous lesson">⌃</button><button type="button" aria-label="Next lesson">⌄</button></div>
         </>}
         {activeView === 'discover' && <><header className="page-heading"><p className="eyebrow">DISCOVER</p><h1>Find your next idea.</h1></header><form className="search-form" onSubmit={onSearch}><input value={searchQuery} onChange={(event) => onSearchQueryChange(event.target.value)} placeholder="Search lessons, topics, categories" /><button type="submit">Search</button></form><div className="category-list">{categories.map((category) => <button type="button" key={category} onClick={() => onCategorySelect(category)}>{category}</button>)}</div><div className="discover-list">{lessons.map((lesson) => <button type="button" key={lesson.slug} onClick={() => onLessonSelect(lesson)}><span>{lesson.category}</span><strong>{lesson.title}</strong><small>{lesson.topic}</small></button>)}</div></>}
         {activeView === 'saved' && <><header className="page-heading"><p className="eyebrow">SAVED</p><h1>Ideas worth returning to.</h1></header><div className="saved-list">{savedLessons.length ? savedLessons.map((lesson) => <article key={lesson.slug}><span>{lesson.category}</span><h2>{lesson.title}</h2><button type="button" onClick={() => onToggleSaved(lesson)}>Remove</button></article>) : <p className="empty-state">Nothing saved yet.</p>}</div></>}

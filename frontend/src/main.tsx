@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BoltLogo } from './BoltLogo'
 import { HomePage, type HomeLesson, type HomeProgressStats, type HomeView } from './HomePage'
 import './styles.css'
 
@@ -281,7 +282,7 @@ function App() {
       <main className="auth-shell">
         <div className="auth-layout interests-layout">
           <header className="auth-header">
-            <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
+            <BoltLogo />
             <h1>DISCOVER YOUR PATH</h1>
             <p>CHOOSE TOPICS YOU'RE INTERESTED IN</p>
             <div className="progress-track" aria-label="2 of 3 steps"><span className="progress-fill interests-progress" /></div>
@@ -317,7 +318,7 @@ function App() {
       <main className="auth-shell">
         <div className="auth-layout people-layout">
           <header className="auth-header">
-            <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
+            <BoltLogo />
             <h1>FIND PEOPLE YOU KNOW</h1>
             <p>CONNECT WITH YOUR CIRCLE</p>
             <div className="progress-track" aria-label="3 of 3 steps"><span className="progress-fill people-progress" /></div>
@@ -345,10 +346,7 @@ function App() {
     <main className="auth-shell">
       <div className="auth-layout">
         <header className="auth-header">
-          <div className="brand-mark" aria-label="Bolt home">
-            <span className="bolt-icon" aria-hidden="true">✦</span>
-            <span>BOLT</span>
-          </div>
+          <BoltLogo />
           <h1>{isSignup ? 'JOIN THE BOLT' : 'WELCOME BACK'}</h1>
           <p>{isSignup ? 'START YOUR JOURNEY OR CREATE YOUR SPACE' : 'ENTER YOUR CREDENTIALS TO LOG IN'}</p>
           {isSignup && <>

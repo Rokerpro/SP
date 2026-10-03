@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
@@ -20,6 +20,8 @@ const interestOptions = [
   ['UX Clarity', '▥'],
 ] as const
 
+type AuthUser = { id: string; email: string; interests: string[] }
+
 function App() {
   const [mode, setMode] = useState<'login' | 'signup'>('signup')
   const [showPassword, setShowPassword] = useState(false)
@@ -29,9 +31,22 @@ function App() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [sessionUser, setSessionUser] = useState<AuthUser | null>(null)
 
   const isSignup = mode === 'signup'
   const canContinue = selectedInterests.length >= 3
+
+  useEffect(() => {
+    const token = localStorage.getItem('bolt-token')
+    if (!token) return
+
+    fetch(`${apiUrl}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (response) => response.ok ? response.json() as Promise<{ data: AuthUser }> : null)
+      .then((result) => {
+        if (result?.data) setSessionUser(result.data)
+      })
+      .catch(() => localStorage.removeItem('bolt-token'))
+  }, [])
 
   function switchMode(nextMode: 'login' | 'signup') {
     setMode(nextMode)
@@ -55,7 +70,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
-      const result = await response.json() as { success: boolean; error?: string; data?: { token: string; user: { interests: string[] } } }
+      const result = await response.json() as { success: boolean; error?: string; data?: { token: string; user: AuthUser } }
 
       if (!response.ok || !result.success || !result.data) {
         throw new Error(result.error ?? 'Unable to continue')
@@ -65,6 +80,8 @@ function App() {
       setSelectedInterests(result.data.user.interests)
       if (isSignup || result.data.user.interests.length < 3) {
         setStep('interests')
+      } else {
+        setSessionUser(result.data.user)
       }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to continue')
@@ -86,14 +103,41 @@ function App() {
       })
       const result = await response.json() as { success: boolean; error?: string }
       if (!response.ok || !result.success) throw new Error(result.error ?? 'Unable to save interests')
-      setStep('auth')
-      setMode('login')
-      setError('Your interests are saved.')
+      setSessionUser({ id: '', email, interests: selectedInterests })
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to save interests')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('bolt-token')
+    setSessionUser(null)
+    setSelectedInterests([])
+    setStep('auth')
+    switchMode('login')
+  }
+
+  if (sessionUser) {
+    return (
+      <main className="auth-shell">
+        <div className="auth-layout signed-in-layout">
+          <header className="auth-header">
+            <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
+            <h1>YOU'RE IN</h1>
+            <p>{sessionUser.email.toUpperCase()}</p>
+          </header>
+          <section className="auth-card signed-in-card">
+            <h2>YOUR TOPICS</h2>
+            <div className="topic-list">
+              {sessionUser.interests.map((interest) => <span key={interest}>{interest}</span>)}
+            </div>
+            <button className="submit-button" type="button" onClick={handleLogout}>LOG OUT</button>
+          </section>
+        </div>
+      </main>
+    )
   }
 
   if (step === 'interests') {

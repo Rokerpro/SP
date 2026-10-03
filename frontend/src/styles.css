@@ -43,6 +43,10 @@ button {
   width: min(100%, 430px);
 }
 
+.signed-in-layout {
+  width: min(100%, 448px);
+}
+
 .auth-header {
   text-align: center;
 }
@@ -253,6 +257,28 @@ input::placeholder {
   font-size: 0.75rem;
   line-height: 1.4;
   text-align: center;
+}
+
+.signed-in-card h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+}
+
+.topic-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 26px;
+}
+
+.topic-list span {
+  padding: 8px 11px;
+  border: 1px solid #b9c8ff;
+  border-radius: 8px;
+  background: #1e1e2e;
+  color: #dce3ff;
+  font-size: 0.75rem;
 }
 
 .interests-card {

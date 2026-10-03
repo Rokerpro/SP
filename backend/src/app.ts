@@ -41,6 +41,17 @@ app.post('/api/auth/login', async (request, response) => {
   response.json({ success: true, data: { token: createToken(user.id), user: { id: user.id, email: user.email, interests: user.interests } } })
 })
 
+app.get('/api/auth/me', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const user = await User.findById(request.userId).lean()
+
+  if (!user) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  response.json({ success: true, data: { id: user._id, email: user.email, interests: user.interests } })
+})
+
 app.put('/api/auth/interests', requireAuth, async (request: AuthenticatedRequest, response) => {
   const interests = Array.isArray(request.body.interests) ? request.body.interests.filter((interest: unknown): interest is string => typeof interest === 'string') : []
 

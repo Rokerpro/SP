@@ -7,6 +7,7 @@ import { Quiz } from './models/quiz.js'
 import { QuizAttempt } from './models/quizAttempt.js'
 import { SavedLesson } from './models/savedLesson.js'
 import { User } from './models/user.js'
+import { seedData } from './seed.js'
 
 export const app = express()
 
@@ -61,12 +62,12 @@ app.post('/api/auth/signup', async (request, response) => {
 })
 
 app.post('/api/auth/login', async (request, response) => {
-  const email = typeof request.body.email === 'string' ? request.body.email.trim().toLowerCase() : ''
+  const loginInput = typeof request.body.email === 'string' ? request.body.email.trim().toLowerCase() : ''
   const password = typeof request.body.password === 'string' ? request.body.password : ''
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ $or: [{ email: loginInput }, { username: loginInput }] })
 
   if (!user || !(await comparePassword(password, user.passwordHash))) {
-    response.status(401).json({ success: false, error: 'Email or password is incorrect' })
+    response.status(401).json({ success: false, error: 'Email/username or password is incorrect' })
     return
   }
 
@@ -267,6 +268,88 @@ app.post('/api/users/:targetUsername/follow', requireAuth, async (request: Authe
   response.json({ success: true, data: { isFollowing: !isFollowing, followersCount: targetUser.followers.length, followingCount: currentUser.following.length } })
 })
 
+app.get('/api/leaderboard', async (_request, response) => {
+  const users = await User.find()
+    .select('-passwordHash')
+    .sort({ xp: -1 })
+    .limit(50)
+    .lean()
+
+  const leaderboard = users.map((u, index) => ({
+    rank: index + 1,
+    id: u._id,
+    username: u.username,
+    displayName: u.displayName,
+    age: u.age,
+    grade: u.grade,
+    xp: u.xp ?? 0,
+    streak: u.streak ?? 0,
+    completedCount: u.completedCount ?? 0,
+    avatar: u.avatar ?? '',
+    bio: u.bio ?? '',
+  }))
+
+  response.json({ success: true, data: leaderboard })
+})
+
+app.get('/api/users/public-suggested', async (_request, response) => {
+  const users = await User.find()
+    .select('username displayName bio xp avatar grade')
+    .sort({ xp: -1 })
+    .limit(10)
+    .lean()
+
+  const data = users.map((u) => ({
+    username: u.username,
+    name: u.displayName,
+    initials: u.displayName.slice(0, 2).toUpperCase(),
+    grade: u.grade || 'General',
+    xp: u.xp || 0,
+  }))
+
+  response.json({ success: true, data })
+})
+
+app.get('/api/users/suggested', requireAuth, async (request: AuthenticatedRequest, response) => {
+  const currentUser = await User.findById(request.userId).lean()
+  if (!currentUser) {
+    response.status(404).json({ success: false, error: 'User not found' })
+    return
+  }
+
+  const query = typeof request.query.q === 'string' ? request.query.q.trim() : ''
+  const filter: Record<string, unknown> = {
+    _id: { $ne: currentUser._id },
+  }
+  if (query) {
+    filter.$or = [
+      { username: new RegExp(query, 'i') },
+      { displayName: new RegExp(query, 'i') },
+    ]
+  }
+
+  const users = await User.find(filter)
+    .select('-passwordHash')
+    .sort({ xp: -1 })
+    .limit(25)
+    .lean()
+
+  const data = users.map((u) => ({
+    id: u._id,
+    name: u.displayName,
+    username: u.username,
+    bio: u.bio ?? '',
+    avatar: u.avatar ?? '',
+    xp: u.xp ?? 0,
+    grade: u.grade || 'General',
+    followersCount: u.followers?.length ?? 0,
+    followingCount: u.following?.length ?? 0,
+    isFollowing: currentUser.following.includes(u.username),
+  }))
+
+  response.json({ success: true, data })
+})
+
 app.get('/api/admin/stats', requireAuth, async (request: AuthenticatedRequest, response) => {
   const user = await User.findById(request.userId).lean()
   if (!user || user.role !== 'admin') {
@@ -332,6 +415,11 @@ app.post('/api/admin/posts/:slug/reject', requireAuth, async (request: Authentic
 })
 
 export async function ensureDefaultAdmin() {
+  const lessonCount = await Lesson.countDocuments()
+  if (lessonCount === 0) {
+    await seedData()
+  }
+
   const adminExists = await User.exists({ role: 'admin' })
   if (!adminExists) {
     const passwordHash = await hashPassword('admin123')

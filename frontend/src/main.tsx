@@ -224,11 +224,36 @@ function App() {
     }
   }
 
+  const [publicPeople, setPublicPeople] = useState<Array<{ username: string; name: string; initials: string }>>([])
+
+  useEffect(() => {
+    if (step !== 'people') return
+    fetch(`${apiUrl}/users/public-suggested`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+          setPublicPeople(result.data)
+        }
+      })
+      .catch(() => {})
+  }, [step])
+
   function togglePerson(usernameToToggle: string) {
     setSelectedPeople((current) => current.includes(usernameToToggle) ? current.filter((item) => item !== usernameToToggle) : [...current, usernameToToggle])
   }
 
-  function completeSignup() {
+  async function completeSignup() {
+    const token = localStorage.getItem('bolt-token') ?? ''
+    if (selectedPeople.length > 0 && token) {
+      await Promise.all(
+        selectedPeople.map((targetUsername) =>
+          fetch(`${apiUrl}/users/${targetUsername}/follow`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {})
+        )
+      )
+    }
     navigateToView('home')
     setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
     setStep('auth')
@@ -419,7 +444,8 @@ function App() {
   }
 
   if (step === 'people') {
-    const visiblePeople = peopleSuggestions.filter((person) => `${person.name} ${person.username}`.toLowerCase().includes(peopleQuery.toLowerCase()))
+    const listToRender = publicPeople.length ? publicPeople : peopleSuggestions
+    const visiblePeople = listToRender.filter((person) => `${person.name} ${person.username}`.toLowerCase().includes(peopleQuery.toLowerCase()))
     return (
       <main className="auth-shell">
         <div className="auth-layout people-layout">

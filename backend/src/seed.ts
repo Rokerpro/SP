@@ -531,30 +531,42 @@ const quizzes: QuizDocument[] = [
   { lessonSlug: 'shakespeare-impact', question: 'Approximately how many words did Shakespeare invent?', options: ['50', '500', '1700+', '10000'], answer: 2, explanation: 'Shakespeare coined over 1,700 words including everyday terms we still use.' },
 ]
 
-await connectDatabase()
-await Lesson.deleteMany({})
-await Lesson.insertMany(lessons)
-console.log(`Seeded ${lessons.length} lessons`)
-await Quiz.deleteMany({})
-await Quiz.insertMany(quizzes)
-console.log(`Seeded ${quizzes.length} quizzes`)
-await User.deleteMany({ email: { $in: demoProfiles.map((p) => p.email) } })
-await User.insertMany(await Promise.all(demoProfiles.map(async (p) => ({
-  email: p.email,
-  username: p.username,
-  displayName: p.displayName,
-  passwordHash: await hashPassword(p.password),
-  interests: p.interests,
-  age: p.age,
-  grade: p.grade,
-  xp: p.xp,
-  streak: p.streak,
-  completedCount: p.completedCount,
-  role: p.role as 'user' | 'admin',
-  bio: p.bio,
-  avatar: '',
-  followers: p.followers,
-  following: p.following,
-}))))
-console.log(`Seeded ${demoProfiles.length} demo profiles`)
-await disconnectDatabase()
+export async function seedData() {
+  await Lesson.deleteMany({})
+  await Lesson.insertMany(lessons)
+  console.log(`Seeded ${lessons.length} lessons`)
+  await Quiz.deleteMany({})
+  await Quiz.insertMany(quizzes)
+  console.log(`Seeded ${quizzes.length} quizzes`)
+  await User.deleteMany({ email: { $in: demoProfiles.map((p) => p.email) } })
+  await User.insertMany(await Promise.all(demoProfiles.map(async (p) => ({
+    email: p.email,
+    username: p.username,
+    displayName: p.displayName,
+    passwordHash: await hashPassword(p.password),
+    interests: p.interests,
+    age: p.age,
+    grade: p.grade,
+    xp: p.xp,
+    streak: p.streak,
+    completedCount: p.completedCount,
+    role: p.role as 'user' | 'admin',
+    bio: p.bio,
+    avatar: '',
+    followers: p.followers,
+    following: p.following,
+  }))))
+  console.log(`Seeded ${demoProfiles.length} demo profiles`)
+}
+
+if (process.argv[1] && process.argv[1].endsWith('seed.ts')) {
+  connectDatabase()
+    .then(async () => {
+      await seedData()
+      await disconnectDatabase()
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit(1)
+    })
+}

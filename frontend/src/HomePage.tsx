@@ -176,6 +176,8 @@ export function HomePage({
     setLessonIndex(0)
   }, [lessons])
 
+  const [realSuggestedUsers, setRealSuggestedUsers] = useState<Array<{ id: string; name: string; username: string; bio?: string; avatar?: string; xp: number; grade?: string; followersCount: number; followingCount: number; isFollowing: boolean }>>([])
+
   useEffect(() => {
     if (activeView !== 'leaderboard') return
     const apiUrl = import.meta.env.VITE_API_URL ?? '/api'
@@ -186,6 +188,22 @@ export function HomePage({
       })
       .catch(() => {})
   }, [activeView])
+
+  useEffect(() => {
+    if (activeView !== 'progress') return
+    const token = localStorage.getItem('bolt-token') ?? ''
+    const apiUrl = import.meta.env.VITE_API_URL ?? '/api'
+    fetch(`${apiUrl}/users/suggested${friendQuery ? `?q=${encodeURIComponent(friendQuery)}` : ''}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success && Array.isArray(result.data)) {
+          setRealSuggestedUsers(result.data)
+        }
+      })
+      .catch(() => {})
+  }, [activeView, friendQuery])
 
   useEffect(() => {
     if (activeView !== 'admin' || userRole !== 'admin') return
@@ -490,26 +508,41 @@ export function HomePage({
 
         {activeView === 'progress' && (
           <section className="friends-page">
-            <header className="friends-heading"><p className="eyebrow">FRIENDS</p><h1>People you may know</h1></header>
+            <header className="friends-heading"><p className="eyebrow">COMMUNITY & FRIENDS</p><h1>People You May Know</h1></header>
             <label className="friends-search">
               <span aria-hidden="true" />
-              <input value={friendQuery} onChange={(event) => setFriendQuery(event.target.value)} placeholder="Search by name, username, or email..." />
+              <input value={friendQuery} onChange={(event) => setFriendQuery(event.target.value)} placeholder="Search users by name or username..." />
             </label>
             <div className="friends-grid">
-              {visibleFriends.map((friend) => {
-                const isFollowed = followedFriends.includes(friend.username)
-                return (
-                  <article className="friend-card" key={friend.username}>
-                    <span className="friend-avatar" aria-hidden="true"><span /></span>
-                    <h2>{friend.name}</h2>
-                    <p>@{friend.username}</p>
-                    <small>{friend.connections} shared connections</small>
-                    <button type="button" onClick={() => setFollowedFriends((current) => (isFollowed ? current.filter((u) => u !== friend.username) : [...current, friend.username]))}>
-                      {isFollowed ? 'Request Sent' : friend.action}
-                    </button>
-                  </article>
-                )
-              })}
+              {realSuggestedUsers.map((userItem) => (
+                <article className="friend-card" key={userItem.username}>
+                  <div className="user-avatar">{userItem.name.slice(0, 2).toUpperCase()}</div>
+                  <h2>{userItem.name}</h2>
+                  <p>@{userItem.username}</p>
+                  <small>{userItem.grade || 'General'} • {userItem.xp} XP</small>
+                  <button
+                    type="button"
+                    className={userItem.isFollowing ? 'following-btn' : ''}
+                    onClick={async () => {
+                      const token = localStorage.getItem('bolt-token') ?? ''
+                      const apiUrl = import.meta.env.VITE_API_URL ?? '/api'
+                      const res = await fetch(`${apiUrl}/users/${userItem.username}/follow`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}` },
+                      })
+                      const result = await res.json()
+                      if (result.success) {
+                        setRealSuggestedUsers((cur) =>
+                          cur.map((u) => (u.username === userItem.username ? { ...u, isFollowing: result.data.isFollowing } : u))
+                        )
+                      }
+                    }}
+                  >
+                    {userItem.isFollowing ? '✓ Following' : '+ Follow'}
+                  </button>
+                </article>
+              ))}
+              {realSuggestedUsers.length === 0 && <p className="empty-state">No users found matching "{friendQuery}".</p>}
             </div>
           </section>
         )}

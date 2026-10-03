@@ -1073,7 +1073,7 @@ input::placeholder {
 .reels-content {
   width: 100%;
   min-height: 100vh;
-  padding: 34px 105px 50px;
+  padding: 34px 32px 50px;
 }
 
 .reels-heading {
@@ -1280,6 +1280,18 @@ input::placeholder {
   color: #8f9094;
   font-size: 0.65rem;
   letter-spacing: 0.08em;
+}
+
+.reel-ending {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  margin: 0;
+  color: #8f9094;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  transform: translateX(-50%);
 }
 
 @media (max-width: 520px) {

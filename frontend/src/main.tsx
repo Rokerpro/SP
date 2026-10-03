@@ -83,6 +83,24 @@ function App() {
   const isSignup = mode === 'signup'
   const canContinue = selectedInterests.length >= 3
 
+  function viewFromPath(path: string): HomeView {
+    if (path === '/discover') return 'discover'
+    if (path === '/saved') return 'saved'
+    if (path === '/progress') return 'progress'
+    return 'home'
+  }
+
+  function navigateToView(view: HomeView) {
+    window.history.pushState({}, '', view === 'home' ? '/home' : `/${view}`)
+    setActiveView(view)
+  }
+
+  useEffect(() => {
+    const handlePopState = () => setActiveView(viewFromPath(window.location.pathname))
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
   useEffect(() => {
     const token = localStorage.getItem('bolt-token')
     if (!token) return
@@ -90,7 +108,12 @@ function App() {
     fetch(`${apiUrl}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(async (response) => response.ok ? response.json() as Promise<{ data: AuthUser }> : null)
       .then((result) => {
-        if (result?.data) setSessionUser(result.data)
+        if (result?.data) {
+          const restoredView = viewFromPath(window.location.pathname)
+          if (window.location.pathname === '/') window.history.replaceState({}, '', '/home')
+          setActiveView(restoredView)
+          setSessionUser(result.data)
+        }
       })
       .catch(() => localStorage.removeItem('bolt-token'))
   }, [])
@@ -150,7 +173,7 @@ function App() {
         setPendingUser(result.data.user)
         setStep('interests')
       } else {
-        setActiveView('home')
+        navigateToView('home')
         setSessionUser(result.data.user)
       }
     } catch (submitError) {
@@ -187,7 +210,7 @@ function App() {
   }
 
   function completeSignup() {
-    setActiveView('home')
+    navigateToView('home')
     setSessionUser(pendingUser ?? { id: '', email, username, displayName, interests: selectedInterests })
     setStep('auth')
     setSelectedPeople([])
@@ -195,6 +218,7 @@ function App() {
 
   function handleLogout() {
     localStorage.removeItem('bolt-token')
+    window.history.replaceState({}, '', '/')
     setSessionUser(null)
     setSelectedInterests([])
     setPendingUser(null)
@@ -250,7 +274,7 @@ function App() {
     if (result.success) setLessons(result.data)
   }
 
-  if (sessionUser) return <HomePage displayName={sessionUser.displayName} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={setActiveView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { setActiveView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
+  if (sessionUser) return <HomePage displayName={sessionUser.displayName} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
 
   if (step === 'interests') {
     return (

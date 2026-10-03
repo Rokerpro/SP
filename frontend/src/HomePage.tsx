@@ -29,6 +29,21 @@ export type HomeView = 'home' | 'discover' | 'leaderboard' | 'saved' | 'progress
 
 type Quiz = { lessonSlug: string; question: string; options: string[] }
 
+type AdminUser = {
+  _id: string
+  email: string
+  username: string
+  displayName: string
+  role: 'user' | 'admin'
+  age?: number
+  grade?: string
+  xp?: number
+  streak?: number
+  completedCount?: number
+  followers?: string[]
+  following?: string[]
+}
+
 type LeaderboardUser = {
   rank: number
   id: string
@@ -140,6 +155,13 @@ export function HomePage({
   const [newVideoUrl, setNewVideoUrl] = useState('')
   const [adminStats, setAdminStats] = useState<{ totalUsers: number; totalLessons: number; pendingCount: number; totalAttempts: number } | null>(null)
   const [pendingPosts, setPendingPosts] = useState<HomeLesson[]>([])
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
+  const [adminTab, setAdminTab] = useState<'posts' | 'users'>('posts')
+  const [adminResetPw, setAdminResetPw] = useState('')
+  const [adminResetTarget, setAdminResetTarget] = useState('')
+  const [oldPw, setOldPw] = useState('')
+  const [newPw, setNewPw] = useState('')
+  const [pwMsg, setPwMsg] = useState('')
 
   const reelLessons = lessons.slice(0, 20)
   const reelSequence = reelLessons.reduce<Array<{ type: 'lesson' | 'quiz'; lesson: HomeLesson }>>((items, lesson, index) => {
@@ -173,10 +195,12 @@ export function HomePage({
     Promise.all([
       fetch(`${apiUrl}/admin/stats`, { headers }).then((res) => res.json()),
       fetch(`${apiUrl}/admin/pending-posts`, { headers }).then((res) => res.json()),
+      fetch(`${apiUrl}/admin/users`, { headers }).then((res) => res.json()),
     ])
-      .then(([statsRes, pendingRes]) => {
+      .then(([statsRes, pendingRes, usersRes]) => {
         if (statsRes.success) setAdminStats(statsRes.data)
         if (pendingRes.success) setPendingPosts(pendingRes.data)
+        if (usersRes.success) setAdminUsers(usersRes.data)
       })
       .catch(() => {})
   }, [activeView, userRole])
@@ -383,43 +407,84 @@ export function HomePage({
               </div>
             )}
 
-            <div className="profile-section-label">Pending User Submissions ({pendingPosts.length})</div>
-            <div className="admin-pending-list">
-              {pendingPosts.map((post) => (
-                <article className="admin-post-card" key={post.slug}>
-                  <div className="admin-post-meta">
-                    <span className="category-badge">{post.category}</span>
-                    <span className="author-tag">By {post.authorName || 'Learner'}</span>
-                  </div>
-                  <h2>{post.title}</h2>
-                  <p>{post.explanation}</p>
-                  <strong>Takeaway: {post.takeaway}</strong>
-                  <div className="admin-actions">
-                    <button
-                      className="approve-btn"
-                      type="button"
-                      onClick={async () => {
-                        if (onApprovePost) await onApprovePost(post.slug)
-                        setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug))
-                      }}
-                    >
-                      ✓ Approve & Publish
-                    </button>
-                    <button
-                      className="reject-btn"
-                      type="button"
-                      onClick={async () => {
-                        if (onRejectPost) await onRejectPost(post.slug)
-                        setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug))
-                      }}
-                    >
-                      ✕ Reject
-                    </button>
-                  </div>
-                </article>
-              ))}
-              {pendingPosts.length === 0 && <p className="empty-state">No pending posts to review.</p>}
+            <div className="admin-tabs">
+              <button className={adminTab === 'posts' ? 'active' : ''} type="button" onClick={() => setAdminTab('posts')}>Content Review</button>
+              <button className={adminTab === 'users' ? 'active' : ''} type="button" onClick={() => setAdminTab('users')}>User Management</button>
             </div>
+
+            {adminTab === 'posts' && (
+              <>
+                <div className="profile-section-label">Pending User Submissions ({pendingPosts.length})</div>
+                <div className="admin-pending-list">
+                  {pendingPosts.map((post) => (
+                    <article className="admin-post-card" key={post.slug}>
+                      <div className="admin-post-meta">
+                        <span className="category-badge">{post.category}</span>
+                        <span className="author-tag">By {post.authorName || 'Learner'}</span>
+                      </div>
+                      <h2>{post.title}</h2>
+                      <p>{post.explanation}</p>
+                      <strong>Takeaway: {post.takeaway}</strong>
+                      <div className="admin-actions">
+                        <button className="approve-btn" type="button" onClick={async () => { if (onApprovePost) await onApprovePost(post.slug); setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug)) }}>✓ Approve & Publish</button>
+                        <button className="reject-btn" type="button" onClick={async () => { if (onRejectPost) await onRejectPost(post.slug); setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug)) }}>✕ Reject</button>
+                      </div>
+                    </article>
+                  ))}
+                  {pendingPosts.length === 0 && <p className="empty-state">No pending posts to review.</p>}
+                </div>
+              </>
+            )}
+
+            {adminTab === 'users' && (
+              <>
+                <div className="profile-section-label">All Platform Users ({adminUsers.length})</div>
+                <div className="admin-users-list">
+                  {adminUsers.map((u) => (
+                    <div className="admin-user-row" key={u._id}>
+                      <div className="admin-user-info">
+                        <div className="user-avatar">{u.displayName.slice(0, 2).toUpperCase()}</div>
+                        <div>
+                          <strong>{u.displayName}</strong>
+                          <small>@{u.username} · {u.email} · {u.grade || 'General'} · {u.xp ?? 0} XP</small>
+                        </div>
+                      </div>
+                      <div className="admin-user-actions">
+                        <span className={`role-badge ${u.role}`}>{u.role}</span>
+                        <button type="button" onClick={async () => {
+                          const newRole = u.role === 'admin' ? 'user' : 'admin'
+                          const token = localStorage.getItem('bolt-token') ?? ''
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? '/api'}/admin/users/${u._id}/role`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ role: newRole }) })
+                          const result = await res.json()
+                          if (result.success) setAdminUsers((cur) => cur.map((x) => x._id === u._id ? { ...x, role: newRole } : x))
+                        }}>{u.role === 'admin' ? 'Demote' : 'Make Admin'}</button>
+                        {adminResetTarget === u._id ? (
+                          <form className="inline-pw-form" onSubmit={async (e) => {
+                            e.preventDefault()
+                            const token = localStorage.getItem('bolt-token') ?? ''
+                            const res = await fetch(`${import.meta.env.VITE_API_URL ?? '/api'}/admin/users/${u._id}/password`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ newPassword: adminResetPw }) })
+                            const result = await res.json()
+                            if (result.success) { setAdminResetTarget(''); setAdminResetPw('') }
+                          }}>
+                            <input type="password" placeholder="New password" value={adminResetPw} onChange={(e) => setAdminResetPw(e.target.value)} minLength={8} required />
+                            <button type="submit">Set</button>
+                            <button type="button" onClick={() => setAdminResetTarget('')}>Cancel</button>
+                          </form>
+                        ) : (
+                          <button type="button" onClick={() => setAdminResetTarget(u._id)}>Reset Password</button>
+                        )}
+                        <button className="reject-btn" type="button" onClick={async () => {
+                          const token = localStorage.getItem('bolt-token') ?? ''
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? '/api'}/admin/users/${u._id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+                          const result = await res.json()
+                          if (result.success) setAdminUsers((cur) => cur.filter((x) => x._id !== u._id))
+                        }}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         )}
 
@@ -489,6 +554,22 @@ export function HomePage({
               ))}
               {userPosts.length === 0 && <p className="empty-state">No reels created yet. Click above to post your first reel!</p>}
             </div>
+
+            <div className="profile-section-label">Change Password</div>
+            <form className="change-pw-form" onSubmit={async (e) => {
+              e.preventDefault()
+              setPwMsg('')
+              const token = localStorage.getItem('bolt-token') ?? ''
+              const res = await fetch(`${import.meta.env.VITE_API_URL ?? '/api'}/users/change-password`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ oldPassword: oldPw, newPassword: newPw }) })
+              const result = await res.json()
+              if (result.success) { setPwMsg('Password updated'); setOldPw(''); setNewPw('') }
+              else setPwMsg(result.error || 'Failed to update')
+            }}>
+              <input className="standalone-input" type="password" placeholder="Current password" value={oldPw} onChange={(e) => setOldPw(e.target.value)} required />
+              <input className="standalone-input" type="password" placeholder="New password (min 8 chars)" value={newPw} onChange={(e) => setNewPw(e.target.value)} minLength={8} required />
+              <button className="submit-button" type="submit">Update Password</button>
+              {pwMsg && <p className="pw-msg">{pwMsg}</p>}
+            </form>
           </section>
         )}
       </section>

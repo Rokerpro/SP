@@ -525,6 +525,10 @@ input::placeholder {
 .lesson-feed {
   display: grid;
   gap: 18px;
+  max-height: 72vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
 }
 
 .lesson-card {
@@ -534,6 +538,7 @@ input::placeholder {
   border: 1px solid #303340;
   border-radius: 16px;
   background: #191b24;
+  scroll-snap-align: start;
 }
 
 .lesson-visual {
@@ -628,6 +633,25 @@ input::placeholder {
   gap: 10px;
 }
 
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.category-list button {
+  border: 1px solid #40465b;
+  border-radius: 999px;
+  background: #1e1e2e;
+  color: #cbd4ff;
+  padding: 9px 13px;
+}
+
+.category-list button:hover {
+  border-color: #b9c8ff;
+}
+
 .discover-list button,
 .saved-list article {
   display: grid;
@@ -687,6 +711,40 @@ input::placeholder {
 .stats-grid span {
   color: #a0a7bd;
   font-size: 0.75rem;
+}
+
+.category-progress {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding: 22px;
+  border: 1px solid #303340;
+  border-radius: 12px;
+  background: #191b24;
+}
+
+.category-progress > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  color: #bfc5d9;
+  font-size: 0.78rem;
+}
+
+.category-progress i {
+  grid-column: 1 / -1;
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #0f1118;
+}
+
+.category-progress b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #b9c8ff;
 }
 
 .tutor-panel {

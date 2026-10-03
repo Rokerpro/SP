@@ -22,7 +22,7 @@ const interestOptions = [
 
 type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[] }
 type Lesson = { slug: string; category: string; title: string; topic: string; explanation: string; takeaway: string; difficulty: string; visualKey: string; relatedTopics: string[] }
-type ProgressStats = { conceptsLearned: number; quizAccuracy: number; savedLessons: number }
+type ProgressStats = { conceptsLearned: number; quizAccuracy: number; savedLessons: number; streak: number; categoryProgress: Record<string, { completed: number; total: number }> }
 type AppView = 'home' | 'discover' | 'saved' | 'progress'
 
 function KeyIcon() {
@@ -65,8 +65,9 @@ function App() {
   const [activeView, setActiveView] = useState<AppView>('home')
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [savedLessons, setSavedLessons] = useState<Lesson[]>([])
-  const [progressStats, setProgressStats] = useState<ProgressStats>({ conceptsLearned: 0, quizAccuracy: 0, savedLessons: 0 })
+  const [progressStats, setProgressStats] = useState<ProgressStats>({ conceptsLearned: 0, quizAccuracy: 0, savedLessons: 0, streak: 0, categoryProgress: {} })
   const [searchQuery, setSearchQuery] = useState('')
+  const [categories, setCategories] = useState<string[]>([])
   const [quiz, setQuiz] = useState<{ lessonSlug: string; question: string; options: string[] } | null>(null)
   const [quizFeedback, setQuizFeedback] = useState('')
   const [tutorPrompt, setTutorPrompt] = useState('')
@@ -95,10 +96,12 @@ function App() {
       fetch(`${apiUrl}/feed`, { headers }).then((response) => response.json()),
       fetch(`${apiUrl}/saved`, { headers }).then((response) => response.json()),
       fetch(`${apiUrl}/progress`, { headers }).then((response) => response.json()),
-    ]).then(([feed, saved, progress]) => {
+      fetch(`${apiUrl}/categories`).then((response) => response.json()),
+    ]).then(([feed, saved, progress, categoryResult]) => {
       if (feed.success) setLessons(feed.data)
       if (saved.success) setSavedLessons(saved.data)
       if (progress.success) setProgressStats(progress.data)
+      if (categoryResult.success) setCategories(categoryResult.data)
     }).catch(() => setError('Unable to load your learning data'))
   }, [sessionUser])
 
@@ -190,7 +193,9 @@ function App() {
 
   async function completeLesson(lesson: Lesson) {
     await fetch(`${apiUrl}/progress/${lesson.slug}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` }, body: JSON.stringify({ completed: true }) })
-    setProgressStats((current) => ({ ...current, conceptsLearned: current.conceptsLearned + 1 }))
+    const response = await fetch(`${apiUrl}/progress`, { headers: { Authorization: `Bearer ${localStorage.getItem('bolt-token') ?? ''}` } })
+    const result = await response.json()
+    if (result.success) setProgressStats(result.data)
   }
 
   async function openQuiz(lesson: Lesson) {
@@ -241,9 +246,9 @@ function App() {
             <header className="page-heading"><p className="eyebrow">YOUR DAILY BOLT</p><h1>Keep your curiosity moving.</h1><p>Short lessons, sharp ideas, better recall.</p></header>
             <div className="lesson-feed">{lessons.map((lesson) => <article className="lesson-card" key={lesson.slug}><div className="lesson-visual"><span>{lesson.visualKey}</span></div><div className="lesson-body"><div className="lesson-meta"><span>{lesson.category}</span><span>{lesson.difficulty}</span></div><h2>{lesson.title}</h2><p>{lesson.explanation}</p><strong>{lesson.takeaway}</strong><div className="lesson-actions"><button type="button" onClick={() => completeLesson(lesson)}>Mark learned</button><button type="button" onClick={() => toggleSaved(lesson)}>{savedLessons.some((item) => item.slug === lesson.slug) ? 'Saved' : 'Save'}</button><button type="button" onClick={() => openQuiz(lesson)}>Quiz</button></div></div></article>)}</div>
           </>}
-          {activeView === 'discover' && <><header className="page-heading"><p className="eyebrow">DISCOVER</p><h1>Find your next idea.</h1></header><form className="search-form" onSubmit={searchLessons}><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search lessons, topics, categories" /><button type="submit">Search</button></form><div className="discover-list">{lessons.map((lesson) => <button type="button" key={lesson.slug} onClick={() => { setActiveView('home'); setLessons([lesson]) }}><span>{lesson.category}</span><strong>{lesson.title}</strong><small>{lesson.topic}</small></button>)}</div></>}
+          {activeView === 'discover' && <><header className="page-heading"><p className="eyebrow">DISCOVER</p><h1>Find your next idea.</h1></header><form className="search-form" onSubmit={searchLessons}><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search lessons, topics, categories" /><button type="submit">Search</button></form><div className="category-list">{categories.map((category) => <button type="button" key={category} onClick={() => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }}>{category}</button>)}</div><div className="discover-list">{lessons.map((lesson) => <button type="button" key={lesson.slug} onClick={() => { setActiveView('home'); setLessons([lesson]) }}><span>{lesson.category}</span><strong>{lesson.title}</strong><small>{lesson.topic}</small></button>)}</div></>}
           {activeView === 'saved' && <><header className="page-heading"><p className="eyebrow">SAVED</p><h1>Ideas worth returning to.</h1></header><div className="saved-list">{savedLessons.length ? savedLessons.map((lesson) => <article key={lesson.slug}><span>{lesson.category}</span><h2>{lesson.title}</h2><button type="button" onClick={() => toggleSaved(lesson)}>Remove</button></article>) : <p className="empty-state">Nothing saved yet.</p>}</div></>}
-          {activeView === 'progress' && <><header className="page-heading"><p className="eyebrow">PROGRESS</p><h1>Your learning pulse.</h1></header><div className="stats-grid"><div><strong>{progressStats.conceptsLearned}</strong><span>concepts learned</span></div><div><strong>{progressStats.quizAccuracy}%</strong><span>quiz accuracy</span></div><div><strong>{progressStats.savedLessons}</strong><span>saved lessons</span></div></div><section className="tutor-panel"><p className="eyebrow">BOLT TUTOR</p><h2>Ask about your current lesson.</h2><form onSubmit={askTutor}><input value={tutorPrompt} onChange={(event) => setTutorPrompt(event.target.value)} placeholder="Explain this simply..." required /><button type="submit">Ask</button></form>{tutorAnswer && <p>{tutorAnswer}</p>}</section></>}
+          {activeView === 'progress' && <><header className="page-heading"><p className="eyebrow">PROGRESS</p><h1>Your learning pulse.</h1></header><div className="stats-grid"><div><strong>{progressStats.conceptsLearned}</strong><span>concepts learned</span></div><div><strong>{progressStats.quizAccuracy}%</strong><span>quiz accuracy</span></div><div><strong>{progressStats.streak} days</strong><span>learning streak</span></div></div><div className="category-progress">{Object.entries(progressStats.categoryProgress).map(([category, value]) => <div key={category}><span>{category}</span><strong>{value.completed}/{value.total}</strong><i><b style={{ width: `${value.total ? (value.completed / value.total) * 100 : 0}%` }} /></i></div>)}</div><section className="tutor-panel"><p className="eyebrow">BOLT TUTOR</p><h2>Ask about your current lesson.</h2><form onSubmit={askTutor}><input value={tutorPrompt} onChange={(event) => setTutorPrompt(event.target.value)} placeholder="Explain this simply..." required /><button type="submit">Ask</button></form>{tutorAnswer && <p>{tutorAnswer}</p>}</section></>}
         </section>
         {quiz && <div className="quiz-modal"><div><button className="modal-close" type="button" onClick={() => setQuiz(null)}>Close</button><p className="eyebrow">QUICK CHECK</p><h2>{quiz.question}</h2>{quiz.options.map((option, index) => <button className="quiz-option" type="button" key={option} onClick={() => answerQuiz(index)}>{option}</button>)}</div></div>}
         {quizFeedback && <button className="feedback-toast" type="button" onClick={() => setQuizFeedback('')}>{quizFeedback}</button>}

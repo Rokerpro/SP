@@ -114,14 +114,28 @@ app.post('/api/progress/:lessonSlug', requireAuth, async (request: Authenticated
 })
 
 app.get('/api/progress', requireAuth, async (request: AuthenticatedRequest, response) => {
-  const [progress, attempts, savedLessons] = await Promise.all([
+  const [progress, attempts, savedLessons, lessons] = await Promise.all([
     Progress.find({ userId: request.userId }).sort({ updatedAt: -1 }).lean(),
     QuizAttempt.find({ userId: request.userId }).sort({ createdAt: -1 }).lean(),
     SavedLesson.countDocuments({ userId: request.userId }),
+    Lesson.find().select('slug category').lean(),
   ])
   const completed = progress.filter((item) => item.completed).length
   const correct = attempts.filter((item) => item.correct).length
-  response.json({ success: true, data: { conceptsLearned: completed, quizAccuracy: attempts.length ? Math.round((correct / attempts.length) * 100) : 0, savedLessons, progress, recentAttempts: attempts.slice(0, 5) } })
+  const categoryProgress = lessons.reduce<Record<string, { completed: number; total: number }>>((summary, lesson) => {
+    summary[lesson.category] ??= { completed: 0, total: 0 }
+    summary[lesson.category].total += 1
+    if (progress.some((item) => item.lessonSlug === lesson.slug && item.completed)) summary[lesson.category].completed += 1
+    return summary
+  }, {})
+  const activeDates = new Set(progress.filter((item) => item.completed).map((item) => new Date(item.viewedAt).toISOString().slice(0, 10)))
+  let streak = 0
+  const day = new Date()
+  while (activeDates.has(day.toISOString().slice(0, 10))) {
+    streak += 1
+    day.setDate(day.getDate() - 1)
+  }
+  response.json({ success: true, data: { conceptsLearned: completed, quizAccuracy: attempts.length ? Math.round((correct / attempts.length) * 100) : 0, savedLessons, streak, categoryProgress, progress, recentAttempts: attempts.slice(0, 5) } })
 })
 
 app.get('/api/saved', requireAuth, async (request: AuthenticatedRequest, response) => {

@@ -22,7 +22,7 @@ const interestOptions = [
   ['UX Clarity', '▥'],
 ] as const
 
-type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[] }
+type AuthUser = { id: string; email: string; username: string; displayName: string; interests: string[]; age?: number; grade?: string; xp?: number; streak?: number; completedCount?: number }
 type SignupStep = 'auth' | 'interests' | 'people'
 
 const peopleSuggestions = [
@@ -60,6 +60,8 @@ function App() {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [age, setAge] = useState('16')
+  const [grade, setGrade] = useState('Grade 9-12')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [step, setStep] = useState<SignupStep>(window.location.pathname === '/signup/interests' ? 'interests' : window.location.pathname === '/signup/people' ? 'people' : 'auth')
@@ -70,7 +72,7 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionUser, setSessionUser] = useState<AuthUser | null>(null)
   const [pendingUser, setPendingUser] = useState<AuthUser | null>(null)
-  const [activeView, setActiveView] = useState<HomeView>('home')
+  const [activeView, setActiveView] = useState<HomeView>(() => viewFromPath(window.location.pathname))
   const [lessons, setLessons] = useState<HomeLesson[]>([])
   const [savedLessons, setSavedLessons] = useState<HomeLesson[]>([])
   const [progressStats, setProgressStats] = useState<HomeProgressStats>({ conceptsLearned: 0, quizAccuracy: 0, savedLessons: 0, streak: 0, categoryProgress: {} })
@@ -83,12 +85,14 @@ function App() {
 
   const isSignup = mode === 'signup'
   const canContinue = selectedInterests.length >= 3
+  const shouldRenderProfileRoute = activeView === 'profile' || window.location.pathname === '/profile'
 
   function viewFromPath(path: string): HomeView {
     if (path === '/discover') return 'discover'
     if (path === '/saved') return 'saved'
     if (path === '/progress') return 'progress'
     if (path === '/profile') return 'profile'
+    if (path === '/leaderboard') return 'leaderboard'
     return 'home'
   }
 
@@ -172,7 +176,7 @@ function App() {
       const response = await fetch(`${apiUrl}/auth/${isSignup ? 'signup' : 'login'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(isSignup ? { email, username, displayName, password, confirmPassword } : { email, password }),
+        body: JSON.stringify(isSignup ? { email, username, displayName, age: Number(age), grade, password, confirmPassword } : { email, password }),
       })
       const result = await response.json() as { success: boolean; error?: string; data?: { token: string; user: AuthUser } }
 
@@ -289,7 +293,7 @@ function App() {
     if (result.success) setLessons(result.data)
   }
 
-  if (sessionUser) return <HomePage username={sessionUser.username} displayName={sessionUser.displayName} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
+  if (sessionUser || shouldRenderProfileRoute) return <HomePage username={sessionUser?.username ?? 'user'} displayName={sessionUser?.displayName ?? 'Display Name'} interests={sessionUser?.interests ?? []} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
 
   if (step === 'interests') {
     return (
@@ -387,6 +391,22 @@ function App() {
               <input className="standalone-input" id="display-name" type="text" placeholder="How should we call you?" value={displayName} onChange={(event) => setDisplayName(event.target.value)} required />
               <label htmlFor="username">USERNAME</label>
               <input className="standalone-input" id="username" type="text" placeholder="Choose a username" value={username} onChange={(event) => setUsername(event.target.value)} required />
+              <div className="form-row">
+                <div>
+                  <label htmlFor="age">YOUR AGE</label>
+                  <input className="standalone-input" id="age" type="number" min="5" max="120" placeholder="e.g. 16" value={age} onChange={(event) => setAge(event.target.value)} required />
+                </div>
+                <div>
+                  <label htmlFor="grade">GRADE LEVEL</label>
+                  <select className="standalone-input grade-select" id="grade" value={grade} onChange={(event) => setGrade(event.target.value)}>
+                    <option value="Grade 1-5">Grade 1-5 (Elementary)</option>
+                    <option value="Grade 6-8">Grade 6-8 (Middle School)</option>
+                    <option value="Grade 9-12">Grade 9-12 (High School)</option>
+                    <option value="College / Adult">College / Adult</option>
+                    <option value="General">General / Other</option>
+                  </select>
+                </div>
+              </div>
             </>}
             <label htmlFor="email">EMAIL ADDRESS</label>
             <div className="input-wrap">

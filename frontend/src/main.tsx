@@ -88,6 +88,7 @@ function App() {
     if (path === '/discover') return 'discover'
     if (path === '/saved') return 'saved'
     if (path === '/progress') return 'progress'
+    if (path === '/profile') return 'profile'
     return 'home'
   }
 
@@ -288,7 +289,7 @@ function App() {
     if (result.success) setLessons(result.data)
   }
 
-  if (sessionUser) return <HomePage displayName={sessionUser.displayName} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
+  if (sessionUser) return <HomePage username={sessionUser.username} displayName={sessionUser.displayName} activeView={activeView} lessons={lessons} savedLessons={savedLessons} progressStats={progressStats} categories={categories} searchQuery={searchQuery} quiz={quiz} quizFeedback={quizFeedback} tutorPrompt={tutorPrompt} tutorAnswer={tutorAnswer} onViewChange={navigateToView} onLogout={handleLogout} onSearchQueryChange={setSearchQuery} onSearch={searchLessons} onCategorySelect={(category) => { setSearchQuery(category); void fetch(`${apiUrl}/lessons/search?q=${encodeURIComponent(category)}`).then((response) => response.json()).then((result) => result.success && setLessons(result.data)) }} onLessonSelect={(lesson) => { navigateToView('home'); setLessons([lesson]) }} onCompleteLesson={completeLesson} onToggleSaved={toggleSaved} onOpenQuiz={openQuiz} onCloseQuiz={() => setQuiz(null)} onAnswerQuiz={answerQuiz} onQuizFeedbackDismiss={() => setQuizFeedback('')} onTutorPromptChange={setTutorPrompt} onAskTutor={askTutor} />
 
   if (step === 'interests') {
     return (

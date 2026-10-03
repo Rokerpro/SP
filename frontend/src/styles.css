@@ -103,6 +103,10 @@ button {
   width: 33.333%;
 }
 
+.progress-fill.interests-progress {
+  width: 66.666%;
+}
+
 .auth-header small {
   color: #b0b5ce;
   font-size: 0.65rem;

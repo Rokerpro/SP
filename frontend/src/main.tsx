@@ -104,8 +104,8 @@ function App() {
             <div className="brand-mark" aria-label="Bolt home"><span className="bolt-icon" aria-hidden="true">✦</span><span>BOLT</span></div>
             <h1>DISCOVER YOUR PATH</h1>
             <p>CHOOSE TOPICS YOU'RE INTERESTED IN</p>
-            <div className="progress-track" aria-label="1 of 3 steps"><span className="progress-fill signup" /></div>
-            <small>1 of 3 Steps</small>
+            <div className="progress-track" aria-label="2 of 3 steps"><span className="progress-fill interests-progress" /></div>
+            <small>2 of 3 Steps</small>
           </header>
           <section className="interests-card" aria-labelledby="interests-title">
             <div className="interest-grid">
@@ -141,10 +141,10 @@ function App() {
           </div>
           <h1>{isSignup ? 'JOIN THE BOLT' : 'WELCOME BACK'}</h1>
           <p>{isSignup ? 'START YOUR JOURNEY OR CREATE YOUR SPACE' : 'ENTER YOUR CREDENTIALS TO LOG IN'}</p>
-          <div className="progress-track" aria-label={`${isSignup ? '1' : '2'} of 3 steps`}>
-            <span className={isSignup ? 'progress-fill signup' : 'progress-fill'} />
+          <div className="progress-track" aria-label="1 of 3 steps">
+            <span className="progress-fill signup" />
           </div>
-          <small>{isSignup ? '1 of 3 Steps' : '2 of 3 Steps'}</small>
+          <small>1 of 3 Steps</small>
         </header>
 
         <section className="auth-card" aria-labelledby="form-title">

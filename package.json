@@ -1,0 +1,13 @@
+{
+  "name": "bolt",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace frontend & npm run dev --workspace backend",
+    "build": "npm run build --workspace frontend && npm run build --workspace backend",
+    "start": "npm run start --workspace backend"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

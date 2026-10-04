@@ -3790,14 +3790,9 @@ textarea:focus-visible {
   color: #f2f5ff;
 }
 
-.tutor-input-form button {
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: none;
-  background: #4a6bff;
-  color: #ffffff;
-  font-weight: 700;
-  cursor: pointer;
+.tutor-input-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .tutor-answer-box {
@@ -3808,7 +3803,36 @@ textarea:focus-visible {
   border: 1px solid rgba(66, 217, 232, 0.2);
   color: #e2f8fc;
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.tutor-answer-box p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.tutor-loading-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.tutor-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(66, 217, 232, 0.2);
+  border-top-color: #42d9e8;
+  border-radius: 50%;
+  animation: tutorSpin 0.8s linear infinite;
+}
+
+@keyframes tutorSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .category-pills-row {
@@ -4258,6 +4282,22 @@ textarea:focus-visible {
   justify-content: space-between;
   padding: 28px;
   box-sizing: border-box;
+}
+
+.card-scrollable-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.card-scrollable-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.card-scrollable-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 .card-front {
@@ -5203,39 +5243,459 @@ textarea:focus-visible {
   }
 }
 
-/* Deck reel row — responsive */
+/* Deck reel row — responsive styling for tablets and mobile */
 @media (max-width: 780px) {
+  .main-content-flow {
+    padding: 16px 10px 80px;
+  }
+
+  .card-decks-section {
+    width: 100%;
+    padding: 0 4px;
+  }
+
+  /* REMOVE next and previous buttons ONLY on mobile */
+  .deck-left-strip {
+    display: none !important;
+  }
+
+  .deck-header-bar {
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .deck-title-text {
+    font-size: 1.02rem;
+  }
+
+  .deck-icon {
+    font-size: 1.4rem;
+  }
+
+  .deck-reel-row {
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+  }
+
   .deck-reel-card-wrap {
-    width: 260px;
-    height: 462px;
+    width: clamp(280px, calc(100vw - 72px), 360px);
+    height: clamp(490px, 70vh, 580px);
+    max-height: 82vh;
+    touch-action: pan-y;
+    user-select: none;
+    cursor: grab;
+  }
+
+  .deck-reel-card-wrap:active {
+    cursor: grabbing;
+  }
+
+  .card-face {
+    padding: 20px 16px;
+  }
+
+  .card-visual-center {
+    margin: 8px 0;
+  }
+
+  .card-visual-circle {
+    width: 68px;
+    height: 68px;
+  }
+
+  .visual-emoji {
+    font-size: 2.2rem;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    margin: 0 0 6px;
+  }
+
+  .card-explanation {
+    font-size: 0.88rem;
+    line-height: 1.48;
+  }
+
+  .card-bottom-hint {
+    font-size: 0.72rem;
   }
 
   .deck-strip-btn {
-    padding: 8px 10px;
-    min-width: 46px;
+    min-width: 44px;
+    padding: 8px 6px;
+    gap: 3px;
+  }
+
+  .deck-strip-btn .strip-icon {
+    font-size: 1.1rem;
   }
 
   .deck-strip-btn .strip-label {
-    font-size: 0.6rem;
+    font-size: 0.62rem;
   }
 }
 
-@media (max-width: 560px) {
-  .deck-reel-row {
+@media (max-width: 520px) {
+  .main-content-flow {
+    padding: 12px 6px 74px;
+  }
+
+  .reels-view-switcher {
+    margin-bottom: 14px;
+  }
+
+  .view-tab-btn {
+    padding: 7px 14px;
+    font-size: 0.82rem;
+  }
+
+  .deck-selector-scroll {
+    gap: 6px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+
+  .deck-pill-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  .deck-header-bar {
+    margin-bottom: 10px;
+  }
+
+  .deck-title-area {
     gap: 8px;
   }
 
-  .deck-reel-card-wrap {
-    width: 200px;
-    height: 356px;
+  .deck-title-text {
+    font-size: 0.95rem;
   }
 
-  .deck-strip-btn .strip-label {
-    display: none;
+  .deck-progress-track {
+    width: 65px;
+    height: 5px;
+  }
+
+  .deck-counter-text {
+    font-size: 0.72rem;
+  }
+
+  .deck-reel-row {
+    gap: 6px;
+  }
+
+  /* REMOVE next and previous buttons ONLY on mobile */
+  .deck-left-strip {
+    display: none !important;
+  }
+
+  .deck-reel-card-wrap {
+    width: clamp(260px, calc(100vw - 64px), 340px);
+    height: clamp(470px, 70vh, 560px);
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .card-face {
+    padding: 16px 13px;
+  }
+
+  .card-visual-center {
+    margin: 6px 0;
+  }
+
+  .card-visual-circle {
+    width: 54px;
+    height: 54px;
+  }
+
+  .visual-emoji {
+    font-size: 1.8rem;
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+    line-height: 1.25;
+  }
+
+  .card-explanation {
+    font-size: 0.84rem;
+    line-height: 1.42;
+  }
+
+  .card-difficulty-badge,
+  .card-topic-tag {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .card-bottom-hint {
+    font-size: 0.68rem;
+  }
+
+  /* Quiz card on mobile */
+  .quiz-card-body {
+    gap: 6px;
+    margin: 6px 0;
+  }
+
+  .quiz-lesson-ref {
+    font-size: 0.72rem;
+  }
+
+  .quiz-question-title {
+    font-size: 0.94rem;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+
+  .quiz-deck-options {
+    gap: 6px;
+  }
+
+  .quiz-deck-opt-btn {
+    padding: 7px 10px;
+    gap: 8px;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+
+  .quiz-deck-opt-btn .opt-letter {
+    width: 20px;
+    height: 20px;
+    font-size: 0.68rem;
+  }
+
+  .quiz-feedback-banner {
+    padding: 7px 10px;
+    font-size: 0.75rem;
+    margin-top: 4px;
+  }
+
+  .quiz-card-footer {
+    margin-top: 6px;
+  }
+
+  .quiz-card-footer .deck-action-btn {
+    padding: 9px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+
+  /* Card Back on mobile */
+  .card-back-body {
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .takeaway-highlight-box {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .takeaway-icon {
+    font-size: 1.2rem;
+  }
+
+  .takeaway-text {
+    font-size: 0.84rem;
+    line-height: 1.4;
+  }
+
+  .related-chips {
+    gap: 4px;
+  }
+
+  .rel-chip {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  /* Strips on mobile */
+  .deck-left-strip {
+    display: none !important;
+  }
+
+  .deck-right-strip {
+    gap: 6px;
   }
 
   .deck-strip-btn {
-    min-width: 40px;
-    padding: 8px;
+    min-width: 38px;
+    max-width: 42px;
+    padding: 7px 4px;
+    border-radius: 10px;
+    gap: 2px;
+  }
+
+  .deck-strip-btn .strip-icon {
+    font-size: 1rem;
+  }
+
+  .deck-strip-btn .strip-label {
+    font-size: 0.56rem;
+    letter-spacing: 0;
+  }
+}
+
+/* Mobile swipe/scroll indicator */
+.mobile-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 780px) {
+  .mobile-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #818cf8;
+    letter-spacing: 0.02em;
+    opacity: 0.85;
+    animation: bounceHint 2s infinite ease-in-out;
+  }
+}
+
+@keyframes bounceHint {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Mobile-only: scrollable deck card list ── */
+.mobile-deck-scroll {
+  display: none;
+}
+
+@media (max-width: 780px) {
+  /* Hide desktop swipe view on mobile, show scroll view */
+  .deck-reel-row {
+    display: none;
+  }
+
+  .mobile-scroll-hint {
+    display: none !important;
+  }
+
+  .mobile-deck-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    overflow-y: auto;
+    max-height: 75vh;
+    padding: 4px 4px 16px;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+  }
+
+  .mobile-deck-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .mobile-deck-scroll::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.5);
+    border-radius: 4px;
+  }
+
+  .mobile-deck-card {
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 420px;
+    border-radius: 22px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    scroll-snap-align: start;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .mobile-deck-card:active {
+    transform: scale(0.985);
+  }
+
+  .mobile-deck-card .card-face {
+    height: 100%;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+    box-sizing: border-box;
+  }
+
+  /* Quiz cards in scroll view */
+  .mobile-deck-card.quiz-card-stack {
+    min-height: 460px;
+  }
+
+  .mobile-deck-card .quiz-card-inner {
+    min-height: 420px;
+  }
+
+  /* Scroll indicator chip */
+  .mobile-deck-scroll-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #818cf8;
+    letter-spacing: 0.03em;
+    opacity: 0.8;
+  }
+
+  /* Card number badge */
+  .mobile-card-num {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: rgba(0, 0, 0, 0.35);
+    color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .mobile-deck-scroll {
+    gap: 12px;
+    max-height: 72vh;
+  }
+
+  .mobile-deck-card {
+    min-height: 380px;
+    border-radius: 18px;
+  }
+
+  .mobile-deck-card .card-face {
+    min-height: 380px;
+    padding: 16px 14px;
+  }
+
+  .mobile-deck-card.quiz-card-stack {
+    min-height: 420px;
+  }
+
+  .mobile-deck-card .quiz-card-inner {
+    min-height: 380px;
   }
 }

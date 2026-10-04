@@ -66,7 +66,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
               <input
                 id="email"
                 type="text"
-                placeholder="admin@bolt.demo or username"
+                placeholder="Username or email"
                 value={emailOrUsername}
                 onChange={(e) => setEmailOrUsername(e.target.value)}
                 required

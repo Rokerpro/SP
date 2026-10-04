@@ -34,6 +34,46 @@ export function getQuizXp(difficulty?: string): number {
   return XP_BY_DIFFICULTY[difficulty] ?? 15
 }
 
+type LazyDeckVideoProps = {
+  src: string
+  shouldLoad: boolean
+  isActive?: boolean
+  className: string
+}
+
+function LazyDeckVideo({ src, shouldLoad, isActive = false, className }: LazyDeckVideoProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = true
+
+    if (!shouldLoad) {
+      video.pause()
+      video.removeAttribute('src')
+      video.load()
+      return
+    }
+
+    if (isActive) void video.play().catch(() => undefined)
+    else video.pause()
+  }, [isActive, shouldLoad, src])
+
+  return (
+    <video
+      ref={videoRef}
+      src={shouldLoad ? src : undefined}
+      autoPlay={shouldLoad && isActive}
+      loop
+      muted
+      playsInline
+      preload={shouldLoad ? (isActive ? 'auto' : 'metadata') : 'none'}
+      className={className}
+    />
+  )
+}
+
 type CardDeckProps = {
   deck: DeckTheme
   savedLessons: HomeLesson[]
@@ -55,6 +95,11 @@ export function CardDeck({
   const [isFlipped, setIsFlipped] = useState(false)
   const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null)
   const [quizScore, setQuizScore] = useState(0)
+  const [mobileActiveIndex, setMobileActiveIndex] = useState(0)
+  const [isMobileDeckView, setIsMobileDeckView] = useState(() =>
+    window.matchMedia('(max-width: 780px)').matches
+  )
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
 
   // Interleave a Pop Quiz card after every 2 lesson cards
   const deckSequence: DeckSequenceItem[] = []
@@ -88,6 +133,13 @@ export function CardDeck({
   const totalCards = deckSequence.length
   const isDeckFinished = activeCardIndex >= totalCards
   const currentItem = deckSequence[activeCardIndex] as DeckSequenceItem | undefined
+  const videoPlaybackIndex = isMobileDeckView ? mobileActiveIndex : activeCardIndex
+  const nextVideoIndex = deckSequence.findIndex(
+    (item, index) => index > videoPlaybackIndex && item.type === 'lesson' && item.lesson.mediaType === 'video' && Boolean(item.lesson.videoUrl)
+  )
+  const nextVideoLesson = nextVideoIndex >= 0 && deckSequence[nextVideoIndex]?.type === 'lesson'
+    ? deckSequence[nextVideoIndex].lesson
+    : undefined
 
   const currentLesson = currentItem?.lesson
   const isSaved = currentLesson
@@ -98,6 +150,21 @@ export function CardDeck({
   const touchStartY = useRef<number | null>(null)
   const touchStartX = useRef<number | null>(null)
   const lastWheelTime = useRef(0)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 780px)')
+    const updateLayout = (event: MediaQueryListEvent) => setIsMobileDeckView(event.matches)
+    setIsMobileDeckView(mediaQuery.matches)
+    mediaQuery.addEventListener('change', updateLayout)
+    return () => mediaQuery.removeEventListener('change', updateLayout)
+  }, [])
+
+  const handleMobileDeckScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const scrollElement = event.currentTarget
+    if (!scrollElement.clientHeight) return
+    const nextIndex = Math.round(scrollElement.scrollTop / scrollElement.clientHeight)
+    setMobileActiveIndex((currentIndex) => currentIndex === nextIndex ? currentIndex : nextIndex)
+  }
 
   const handleNextCard = useCallback(() => {
     if (currentItem?.type === 'lesson' && currentItem.lesson) {
@@ -254,13 +321,19 @@ export function CardDeck({
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
         >
+          {!isMobileDeckView && nextVideoLesson?.videoUrl && (
+            <LazyDeckVideo
+              src={nextVideoLesson.videoUrl}
+              shouldLoad
+              className="deck-video-preload"
+            />
+          )}
           {isDeckFinished ? (
             <div className="deck-completion-card animate-pop">
               <div className="completion-icon"><i className="fa-solid fa-trophy" style={{ color: '#eab308' }} /></div>
               <h2>Deck Mastered!</h2>
               <p>
-                You completed all {totalCards} cards &amp; quizzes in{' '}
-                <strong>{deck.title}</strong>.
+                You completed every card and quiz in <strong>{deck.title}</strong>.
               </p>
               <div className="completion-rewards">
                 <span className="reward-badge">+{50 + quizScore} XP</span>
@@ -432,13 +505,24 @@ export function CardDeck({
                           </span>
                         </div>
 
-                        <div className="card-visual-center">
-                          <div className="card-visual-circle">
-                            <span className="visual-emoji">
-                              <DynamicIcon name={currentLesson?.visualKey} />
-                            </span>
+                        {currentLesson?.mediaType === 'video' && currentLesson?.videoUrl ? (
+                          <div className="card-video-preview">
+                            <LazyDeckVideo
+                              src={currentLesson.videoUrl}
+                              shouldLoad={!isMobileDeckView}
+                              isActive={!isMobileDeckView}
+                              className="deck-card-video"
+                            />
                           </div>
-                        </div>
+                        ) : (
+                          <div className="card-visual-center">
+                            <div className="card-visual-circle">
+                              <span className="visual-emoji">
+                                <DynamicIcon name={currentLesson?.visualKey} />
+                              </span>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="card-main-content">
                           <h2 className="card-title">{currentLesson?.title}</h2>
@@ -541,14 +625,20 @@ export function CardDeck({
       {/* ── Mobile-only: full-page snap-scroll card feed ── */}
       <div className="mobile-deck-scroll-label">
         <i className="fa-solid fa-layer-group" />
-        {deckSequence.length} cards — swipe to explore
+        Swipe to explore this deck
       </div>
 
-      <div className="mobile-deck-scroll">
+      <div
+        className="mobile-deck-scroll"
+        ref={mobileScrollRef}
+        onScroll={handleMobileDeckScroll}
+      >
         {deckSequence.map((item, idx) => {
           const lesson = item.lesson
           const isLessonCard = item.type === 'lesson'
           const isLastCard = idx === deckSequence.length - 1
+          const hasVideo = isLessonCard && lesson.mediaType === 'video' && Boolean(lesson.videoUrl)
+          const shouldLoadVideo = hasVideo && (idx === videoPlaybackIndex || idx === nextVideoIndex)
 
           return (
             <div
@@ -556,9 +646,6 @@ export function CardDeck({
               className={`mobile-deck-card${item.type === 'quiz' ? ' quiz-card-stack' : ''}`}
               style={isLessonCard ? { background: deck.gradient } : undefined}
             >
-              {/* Card number badge */}
-              <span className="mobile-card-num">{idx + 1} / {deckSequence.length}</span>
-
               {item.type === 'quiz' ? (
                 /* QUIZ CARD (mobile) */
                 <div className="card-face quiz-card-inner card-scrollable-body">
@@ -596,13 +683,24 @@ export function CardDeck({
                     <span className="card-difficulty-badge">{lesson.difficulty}</span>
                     <span className="card-topic-tag">{lesson.topic || lesson.category}</span>
                   </div>
-                  <div className="card-visual-center">
-                    <div className="card-visual-circle">
-                      <span className="visual-emoji">
-                        <DynamicIcon name={lesson.visualKey} />
-                      </span>
+                  {lesson.mediaType === 'video' && lesson.videoUrl ? (
+                    <div className="card-video-preview">
+                      <LazyDeckVideo
+                        src={lesson.videoUrl}
+                        shouldLoad={isMobileDeckView && shouldLoadVideo}
+                        isActive={isMobileDeckView && idx === videoPlaybackIndex}
+                        className="deck-card-video"
+                      />
                     </div>
-                  </div>
+                  ) : (
+                    <div className="card-visual-center">
+                      <div className="card-visual-circle">
+                        <span className="visual-emoji">
+                          <DynamicIcon name={lesson.visualKey} />
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="card-main-content">
                     <h2 className="card-title">{lesson.title}</h2>
                     <p className="card-explanation">{lesson.explanation}</p>

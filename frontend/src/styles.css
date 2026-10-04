@@ -3090,27 +3090,31 @@ textarea:focus-visible {
   overflow-x: hidden;
 }
 
-/* Desktop Sidebar: Expands in-place with main content (NOT overlapping) */
+/* Desktop sidebar stays pinned while the page content scrolls independently. */
 .app-sidebar {
   display: flex;
   flex-direction: column;
-  flex: 0 0 220px;
+  flex: 0 0 0;
   width: 220px;
   min-height: 100vh;
   padding: 24px 16px;
   background: #13151d;
   border-right: 1px solid #262936;
-  position: sticky;
+  position: fixed;
+  left: 0;
   top: 0;
+  bottom: 0;
   height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
   z-index: 100;
   transition: flex-basis 200ms ease, width 200ms ease, padding 200ms ease;
   box-sizing: border-box;
 }
 
 .app-sidebar:hover {
-  flex-basis: 240px;
-  width: 240px;
+  flex-basis: 0;
+  width: 220px;
 }
 
 .sidebar-brand {
@@ -3280,9 +3284,12 @@ textarea:focus-visible {
 .main-content-flow {
   flex: 1;
   min-width: 0;
+  width: auto;
+  margin-left: 220px;
   padding: 36px clamp(20px, 4vw, 56px);
   box-sizing: border-box;
   overflow-y: auto;
+  transition: margin-left 200ms ease;
 }
 
 /* Pages Layout Styling */
@@ -3297,34 +3304,207 @@ textarea:focus-visible {
 
 .single-reel-viewport {
   position: relative;
-  width: min(100%, 540px);
+  width: min(100%, 1240px);
+  margin: 0 auto;
+}
+
+.feed-reel-row {
   display: flex;
-  flex-direction: column;
+  width: 100%;
   align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.reel-card-layout-wrapper {
+  display: flex;
+  width: auto;
+  min-width: 0;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
 }
 
 .reel-card-main {
-  width: 100%;
+  width: min(100%, 405px, 39.4vh);
+  flex: 0 1 405px;
+  min-width: 0;
   border-radius: 20px;
   overflow: hidden;
   background: #191b24;
   border: 1px solid #303340;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 .reel-media-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 9 / 14;
-  max-height: 70vh;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
   background: #000;
 }
 
 .reel-video-element {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.feed-reel-row .deck-right-strip {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.single-reel-viewport .quiz-card-inline {
+  width: min(100%, 405px, 39.4vh);
+  min-width: 0;
+  flex: 0 1 405px;
+  margin: 0;
+  aspect-ratio: 9 / 16;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .single-reel-viewport {
+    width: 100%;
+  }
+
+  .feed-reel-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feed-navigation-strip {
+    order: 2;
+    flex-direction: row;
+  }
+
+  .reel-card-layout-wrapper {
+    width: 100%;
+    flex: 0 1 auto;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .reel-card-main {
+    width: min(100%, 405px, 39.4vh);
+    flex: none;
+    border-radius: 12px;
+  }
+
+  .single-reel-viewport .quiz-card-inline {
+    width: min(100%, 405px, 39.4vh);
+  }
+
+  .feed-reel-row .deck-right-strip {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .reel-media-overlay {
+    padding: 12px;
+  }
+
+  .reel-media-overlay .reel-explanation {
+    display: none;
+  }
+
+  .reel-media-overlay .reel-title {
+    font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+    margin-bottom: 6px;
+  }
+
+  .reel-media-overlay .reel-takeaway-box {
+    padding: 7px 9px;
+    font-size: 0.68rem;
+  }
+
+  .feed-reel-row .deck-strip-btn {
+    min-width: 44px;
+    padding: 8px 9px;
+  }
+}
+
+.reel-sound-toggle-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 25;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  backdrop-filter: blur(8px);
+  transition: all 180ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.reel-play-toggle-btn {
+  position: absolute;
+  top: 18px;
+  right: 64px;
+  z-index: 25;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.reel-play-toggle-btn:hover {
+  background: rgba(99, 102, 241, 0.85);
+  border-color: #818cf8;
+}
+
+.reel-sound-toggle-btn:hover {
+  background: rgba(99, 102, 241, 0.85);
+  border-color: #818cf8;
+  transform: scale(1.08);
+}
+
+.card-video-preview {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 10px 0 14px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.deck-card-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 14px;
 }
 
 .reel-media-overlay {
@@ -3475,6 +3655,18 @@ textarea:focus-visible {
   border-radius: 99px;
   background: #171922;
   border: 1px solid #303342;
+}
+
+.reel-feed-counter {
+  width: fit-content;
+  margin: 12px auto 0;
+  padding: 7px 13px;
+  border: 1px solid #303342;
+  border-radius: 99px;
+  background: #171922;
+  color: #9ea6c4;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .reel-stepper-control button {
@@ -3917,11 +4109,13 @@ textarea:focus-visible {
   }
 
   .main-content-flow {
+    width: 100%;
+    margin-left: 0;
     padding: 20px 16px 80px;
   }
 }
 
-/* Card Decks Styling */
+/* Volt Decks Styling */
 .reels-view-switcher {
   position: relative;
   display: flex;
@@ -4310,6 +4504,22 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+}
+
+.feed-quiz-options {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.feed-quiz-options .quiz-deck-opt-btn {
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
+.quiz-feedback-banner .quiz-trigger-btn {
+  margin-top: 8px;
+  padding: 9px 18px;
 }
 
 .mini-icon {
@@ -5904,5 +6114,691 @@ textarea:focus-visible {
 
   .mobile-deck-card .visual-emoji {
     font-size: 2.1rem;
+  }
+}
+
+/* Full-height, single-step Volt Feed layout */
+.app-layout-flex:has(.reels-feed-container.is-feed-mode) .app-sidebar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  align-self: flex-start;
+  flex: 0 0 0;
+  width: 220px;
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+.app-layout-flex:has(.reels-feed-container.is-feed-mode) .app-sidebar:hover {
+  flex-basis: 0;
+  width: 220px;
+}
+
+.main-content-flow:has(.reels-feed-container.is-feed-mode) {
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.reels-feed-container.is-feed-mode {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px clamp(12px, 1.6vw, 24px) 12px;
+  overflow: hidden;
+}
+
+.is-feed-mode .reels-view-switcher {
+  flex: 0 0 40px;
+  min-height: 40px;
+  margin: 0;
+}
+
+.is-feed-mode .home-profile-badge {
+  padding: 3px 10px 3px 3px;
+}
+
+.is-feed-mode .home-profile-avatar {
+  width: 30px;
+  height: 30px;
+  font-size: 0.7rem;
+}
+
+.is-feed-mode .home-profile-name {
+  font-size: 0.72rem;
+}
+
+.is-feed-mode .home-profile-stats {
+  font-size: 0.62rem;
+}
+
+.is-feed-mode .view-mode-tabs {
+  padding: 3px;
+}
+
+.is-feed-mode .view-tab-btn {
+  padding: 6px 14px;
+  font-size: 0.74rem;
+}
+
+.is-feed-mode .volt-feed-section {
+  display: grid;
+  grid-template-columns: clamp(132px, 15vw, 190px) minmax(0, 1fr);
+  gap: clamp(10px, 1.5vw, 20px);
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.is-feed-mode .feed-video-preload,
+.is-deck-mode .deck-video-preload {
+  position: fixed;
+  top: 0;
+  left: -2px;
+  z-index: -1;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-feed-mode .feed-theme-selector-scroll {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 2px 5px 2px 0;
+  border-right: 1px solid rgba(185, 200, 255, 0.1);
+}
+
+.is-feed-mode .feed-theme-selector-scroll .deck-pill-btn {
+  width: 100%;
+  min-height: 30px;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 5px 9px;
+  font-size: 0.68rem;
+}
+
+.is-feed-mode .feed-theme-selector-scroll .pill-title {
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.is-feed-mode .feed-theme-selector-scroll .pill-icon {
+  font-size: 0.72rem;
+}
+
+.is-feed-mode .single-reel-viewport {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  touch-action: pan-y;
+  overflow: hidden;
+}
+
+.is-feed-mode .feed-reel-row {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: clamp(8px, 1.2vw, 18px);
+}
+
+.is-feed-mode .reel-card-layout-wrapper {
+  width: auto;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 0 1 auto;
+  gap: 10px;
+}
+
+.is-feed-mode .reel-card-main {
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 9 / 16;
+  flex: 0 1 auto;
+  border-radius: 16px;
+}
+
+.is-feed-mode .reel-media-wrapper,
+.is-feed-mode .reel-text-wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.is-feed-mode .reel-media-overlay {
+  inset: auto 0 0;
+  max-height: 52%;
+  overflow-y: auto;
+  padding: 28px 14px 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.88));
+}
+
+.is-feed-mode .reel-text-wrapper {
+  overflow-y: auto;
+}
+
+.is-feed-mode .deck-right-strip,
+.is-feed-mode .feed-navigation-strip {
+  gap: 7px;
+}
+
+.is-feed-mode .deck-strip-btn {
+  min-width: 48px;
+  padding: 8px 9px;
+  border-radius: 11px;
+}
+
+.is-feed-mode .deck-strip-btn .strip-icon {
+  font-size: 0.95rem;
+}
+
+.is-feed-mode .deck-strip-btn .strip-label {
+  font-size: 0.58rem;
+}
+
+.is-feed-mode .single-reel-viewport .quiz-card-inline {
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  aspect-ratio: 9 / 16;
+  flex: 0 1 auto;
+  padding: clamp(14px, 2vh, 24px);
+  border-radius: 16px;
+}
+
+.is-feed-mode .feed-quiz-layout .quiz-card-inline {
+  margin: 0;
+}
+
+.is-feed-mode .quiz-card-inline h2 {
+  font-size: clamp(0.95rem, 1.7vh, 1.35rem);
+}
+
+.is-feed-mode .feed-quiz-options {
+  gap: 6px;
+}
+
+.is-feed-mode .feed-quiz-options .quiz-deck-opt-btn {
+  gap: 7px;
+  padding: 7px 8px;
+  font-size: clamp(0.62rem, 1.15vh, 0.78rem);
+}
+
+.is-feed-mode .feed-reel-row {
+  animation: feed-reel-arrive 220ms ease both;
+}
+
+@keyframes feed-reel-arrive {
+  from { opacity: 0.55; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .app-layout-flex:has(.reels-feed-container.is-feed-mode) .app-sidebar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    align-self: auto;
+    flex: 0 0 64px;
+    width: 100% !important;
+    height: 64px;
+    min-height: 64px;
+  }
+
+  .app-layout-flex:has(.reels-feed-container.is-feed-mode) .app-sidebar:hover {
+    flex-basis: 64px;
+    width: 100% !important;
+  }
+
+  .main-content-flow:has(.reels-feed-container.is-feed-mode) {
+    height: calc(100dvh - 64px);
+    padding: 0 0 4px;
+  }
+
+  .reels-feed-container.is-feed-mode {
+    height: calc(100dvh - 64px);
+    min-height: 0;
+    flex: 1 1 0;
+    gap: 5px;
+    padding: 7px 10px 4px;
+  }
+
+  .is-feed-mode .home-profile-badge {
+    position: static;
+    max-width: 36px;
+    padding: 2px;
+    transform: none;
+  }
+
+  .is-feed-mode .home-profile-info {
+    display: none;
+  }
+
+  .is-feed-mode .reels-view-switcher {
+    justify-content: space-between;
+    flex-basis: 36px;
+    min-height: 36px;
+  }
+
+  .is-feed-mode .view-tab-btn {
+    padding: 5px 10px;
+    font-size: 0.66rem;
+  }
+
+  .is-feed-mode .volt-feed-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 36px minmax(0, 1fr);
+    height: 0;
+    flex: 1 1 0;
+    gap: 3px;
+  }
+
+  .is-feed-mode .feed-theme-selector-scroll {
+    grid-row: 1;
+    height: 36px;
+    min-height: 36px;
+    flex-direction: row;
+    gap: 5px;
+    padding: 0 0 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid rgba(185, 200, 255, 0.1);
+  }
+
+  .is-feed-mode .feed-theme-selector-scroll .deck-pill-btn {
+    width: auto;
+    min-height: 29px;
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    font-size: 0.62rem;
+  }
+
+  .is-feed-mode .single-reel-viewport {
+    grid-row: 2;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .is-feed-mode .feed-reel-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .is-feed-mode .feed-navigation-strip {
+    display: flex;
+    order: 2;
+    flex-direction: row;
+  }
+
+  .is-feed-mode .reel-card-layout-wrapper {
+    display: grid;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 1 1 0;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 5px;
+  }
+
+  .is-feed-mode .reel-card-main {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    min-height: 0;
+    flex: none;
+    grid-row: 1;
+    justify-self: center;
+    border-radius: 12px;
+  }
+
+  .is-feed-mode .feed-quiz-layout {
+    display: grid;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 1 1 0;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 5px;
+  }
+
+  .is-feed-mode .deck-right-strip {
+    grid-row: 2;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .is-feed-mode .deck-strip-btn {
+    min-width: 42px;
+    padding: 6px 8px;
+  }
+
+  .is-feed-mode .single-reel-viewport .quiz-card-inline {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    min-height: 0;
+    flex: 0 1 auto;
+    grid-row: 1;
+    justify-self: center;
+    border-radius: 12px;
+  }
+
+  .is-feed-mode .feed-quiz-layout .deck-right-strip {
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-feed-mode .feed-reel-row {
+    animation: none;
+  }
+}
+
+/* Decks use the same category rail and full-height stage as the feed. */
+.app-layout-flex:has(.reels-feed-container.is-deck-mode) .app-sidebar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  align-self: flex-start;
+  flex: 0 0 0;
+  width: 220px;
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+.app-layout-flex:has(.reels-feed-container.is-deck-mode) .app-sidebar:hover {
+  flex-basis: 0;
+  width: 220px;
+}
+
+.main-content-flow:has(.reels-feed-container.is-deck-mode) {
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.reels-feed-container.is-deck-mode {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px clamp(12px, 1.6vw, 24px) 12px;
+  overflow: hidden;
+}
+
+.is-deck-mode .reels-view-switcher {
+  flex: 0 0 40px;
+  min-height: 40px;
+  margin: 0;
+}
+
+.is-deck-mode .home-profile-badge {
+  padding: 3px 10px 3px 3px;
+}
+
+.is-deck-mode .home-profile-avatar {
+  width: 30px;
+  height: 30px;
+  font-size: 0.7rem;
+}
+
+.is-deck-mode .home-profile-name {
+  font-size: 0.72rem;
+}
+
+.is-deck-mode .home-profile-stats {
+  font-size: 0.62rem;
+}
+
+.is-deck-mode .view-mode-tabs {
+  padding: 3px;
+}
+
+.is-deck-mode .view-tab-btn {
+  padding: 6px 14px;
+  font-size: 0.74rem;
+}
+
+.is-deck-mode .card-decks-section {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  height: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: clamp(132px, 15vw, 190px) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(10px, 1.5vw, 20px);
+  padding: 0;
+}
+
+.is-deck-mode .deck-theme-selector-scroll {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 2px 5px 2px 0;
+  border-right: 1px solid rgba(185, 200, 255, 0.1);
+}
+
+.is-deck-mode .deck-theme-selector-scroll .deck-pill-btn {
+  width: 100%;
+  min-height: 30px;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 5px 9px;
+  font-size: 0.68rem;
+}
+
+.is-deck-mode .deck-theme-selector-scroll .pill-title {
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.is-deck-mode .deck-active-panel,
+.is-deck-mode .card-deck-wrapper {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.is-deck-mode .card-deck-wrapper {
+  justify-content: flex-start;
+}
+
+.is-deck-mode .deck-header-bar {
+  max-width: none;
+  flex: 0 0 auto;
+  margin: 0 0 8px;
+  padding: 0 4px;
+}
+
+.is-deck-mode .deck-counter-text {
+  display: none;
+}
+
+.is-deck-mode .deck-reel-row {
+  height: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: clamp(8px, 1.2vw, 18px);
+}
+
+.is-deck-mode .deck-reel-card-wrap {
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 9 / 16;
+}
+
+.is-deck-mode .deck-strip-btn {
+  min-width: 48px;
+  padding: 8px 9px;
+  border-radius: 11px;
+}
+
+.is-deck-mode .deck-strip-btn .strip-icon {
+  font-size: 0.95rem;
+}
+
+.is-deck-mode .deck-strip-btn .strip-label {
+  font-size: 0.58rem;
+}
+
+@media (max-width: 768px) {
+  .app-layout-flex:has(.reels-feed-container.is-deck-mode) .app-sidebar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    align-self: auto;
+    flex: 0 0 64px;
+    width: 100% !important;
+    height: 64px;
+    min-height: 64px;
+  }
+
+  .app-layout-flex:has(.reels-feed-container.is-deck-mode) .app-sidebar:hover {
+    flex-basis: 64px;
+    width: 100% !important;
+  }
+
+  .main-content-flow:has(.reels-feed-container.is-deck-mode) {
+    height: calc(100dvh - 64px);
+    padding: 0 0 4px;
+  }
+
+  .reels-feed-container.is-deck-mode {
+    gap: 5px;
+    padding: 7px 10px 4px;
+  }
+
+  .is-deck-mode .home-profile-badge {
+    position: static;
+    max-width: 36px;
+    padding: 2px;
+    transform: none;
+  }
+
+  .is-deck-mode .home-profile-info {
+    display: none;
+  }
+
+  .is-deck-mode .reels-view-switcher {
+    justify-content: space-between;
+    flex-basis: 36px;
+    min-height: 36px;
+  }
+
+  .is-deck-mode .view-tab-btn {
+    padding: 5px 10px;
+    font-size: 0.66rem;
+  }
+
+  .is-deck-mode .card-decks-section {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .is-deck-mode .deck-theme-selector-scroll {
+    width: 100%;
+    height: 36px;
+    min-height: 36px;
+    flex: 0 0 36px;
+    flex-direction: row;
+    gap: 5px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 0 4px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(185, 200, 255, 0.1);
+  }
+
+  .is-deck-mode .deck-theme-selector-scroll .deck-pill-btn {
+    width: auto;
+    min-height: 29px;
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    font-size: 0.62rem;
+  }
+
+  .is-deck-mode .deck-active-panel,
+  .is-deck-mode .card-deck-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 0;
+  }
+
+  .is-deck-mode .card-deck-wrapper {
+    margin: 0;
+  }
+
+  .is-deck-mode .deck-header-bar {
+    width: 100%;
+    margin: 0 0 5px;
+    padding: 0 2px;
+  }
+
+  .is-deck-mode .mobile-deck-scroll-label {
+    display: none;
+  }
+
+  .is-deck-mode .mobile-deck-scroll {
+    height: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .is-deck-mode .mobile-deck-card {
+    height: 100%;
   }
 }

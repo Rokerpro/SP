@@ -49,6 +49,7 @@ export function App() {
   const [quizFeedback, setQuizFeedback] = useState('')
   const [tutorPrompt, setTutorPrompt] = useState('')
   const [tutorAnswer, setTutorAnswer] = useState('')
+  const [isTutorLoading, setIsTutorLoading] = useState(false)
 
   const [showCreateModal, setShowCreateModal] = useState(false)
 
@@ -72,6 +73,13 @@ export function App() {
       .catch(() => localStorage.removeItem('bolt-token'))
       .finally(() => setIsAuthChecking(false))
   }, [])
+
+  // Keep authenticated sessions out of the login and signup screens.
+  useEffect(() => {
+    if (sessionUser && (location.pathname === '/login' || location.pathname === '/signup')) {
+      navigate('/home', { replace: true })
+    }
+  }, [location.pathname, navigate, sessionUser])
 
   // Fetch feed, saved, categories, and user posts when sessionUser changes
   useEffect(() => {
@@ -173,14 +181,27 @@ export function App() {
 
   const handleAskTutor = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const token = localStorage.getItem('bolt-token') ?? ''
-    const res = await fetch(`${apiUrl}/tutor`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ prompt: tutorPrompt, lessonSlug: lessons[0]?.slug }),
-    })
-    const result = await res.json()
-    if (result.success) setTutorAnswer(result.data.answer)
+    if (!tutorPrompt.trim() || isTutorLoading) return
+    setIsTutorLoading(true)
+    setTutorAnswer('')
+    try {
+      const token = localStorage.getItem('bolt-token') ?? ''
+      const res = await fetch(`${apiUrl}/tutor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ prompt: tutorPrompt, lessonSlug: lessons[0]?.slug }),
+      })
+      const result = await res.json()
+      if (result.success) {
+        setTutorAnswer(result.data.answer)
+      } else {
+        setTutorAnswer(result.error || 'Failed to get an answer. Please try again.')
+      }
+    } catch {
+      setTutorAnswer('⚠️ Network error connecting to tutor server. Please try again.')
+    } finally {
+      setIsTutorLoading(false)
+    }
   }
 
   const handleCreatePost = async (postData: {
@@ -235,7 +256,6 @@ export function App() {
             <LoginPage
               onLoginSuccess={(_token, user) => {
                 setSessionUser(user)
-                navigate('/home')
               }}
             />
           }
@@ -246,7 +266,6 @@ export function App() {
             <SignupPage
               onSignupSuccess={(_token, user) => {
                 setSessionUser(user)
-                navigate('/home')
               }}
             />
           }
@@ -278,6 +297,7 @@ export function App() {
                 onToggleSaved={handleToggleSaved}
                 onCompleteLesson={handleCompleteLesson}
                 onOpenQuiz={handleOpenQuiz}
+                user={sessionUser}
               />
             }
           />

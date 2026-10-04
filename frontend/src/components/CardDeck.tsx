@@ -538,16 +538,17 @@ export function CardDeck({
         </div>
       )}
 
-      {/* ── Mobile-only: scrollable card list ── */}
-      <div className="mobile-deck-scroll">
-        <div className="mobile-deck-scroll-label">
-          <i className="fa-solid fa-layer-group" />
-          {deckSequence.length} cards — scroll to explore
-        </div>
+      {/* ── Mobile-only: full-page snap-scroll card feed ── */}
+      <div className="mobile-deck-scroll-label">
+        <i className="fa-solid fa-layer-group" />
+        {deckSequence.length} cards — swipe to explore
+      </div>
 
+      <div className="mobile-deck-scroll">
         {deckSequence.map((item, idx) => {
           const lesson = item.lesson
           const isLessonCard = item.type === 'lesson'
+          const isLastCard = idx === deckSequence.length - 1
 
           return (
             <div
@@ -612,6 +613,14 @@ export function CardDeck({
                       {lesson.takeaway}
                     </span>
                   </div>
+                </div>
+              )}
+
+              {/* Scroll-down arrow (hidden on last card via CSS) */}
+              {!isLastCard && (
+                <div className="mobile-card-scroll-arrow">
+                  <i className="fa-solid fa-chevron-down" />
+                  <span>scroll</span>
                 </div>
               )}
             </div>

@@ -5572,13 +5572,17 @@ textarea:focus-visible {
   }
 }
 
-/* ── Mobile-only: scrollable deck card list ── */
+/* ── Mobile-only: full-page snap-scroll deck feed ── */
 .mobile-deck-scroll {
   display: none;
 }
 
+.mobile-deck-scroll-label {
+  display: none;
+}
+
 @media (max-width: 780px) {
-  /* Hide desktop swipe view on mobile, show scroll view */
+  /* Hide desktop swipe view, show full-page scroll view */
   .deck-reel-row {
     display: none;
   }
@@ -5587,70 +5591,159 @@ textarea:focus-visible {
     display: none !important;
   }
 
-  .mobile-deck-scroll {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    overflow-y: auto;
-    max-height: 75vh;
-    padding: 4px 4px 16px;
-    scroll-snap-type: y mandatory;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+  /* Break out of the page padding so cards go edge-to-edge */
+  .card-deck-wrapper {
+    width: 100vw;
+    margin-left: calc(-1 * clamp(10px, 4vw, 56px));
+    margin-right: calc(-1 * clamp(10px, 4vw, 56px));
   }
 
-  .mobile-deck-scroll::-webkit-scrollbar {
-    width: 4px;
+  /* Pill selector stays inside normal flow */
+  .deck-selector-scroll {
+    width: calc(100vw - 2 * clamp(10px, 4vw, 56px));
+    margin-left: clamp(10px, 4vw, 56px);
   }
 
-  .mobile-deck-scroll::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.5);
-    border-radius: 4px;
-  }
-
-  .mobile-deck-card {
-    flex-shrink: 0;
-    width: 100%;
-    min-height: 420px;
-    border-radius: 22px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    scroll-snap-align: start;
-    transition: transform 200ms ease, box-shadow 200ms ease;
-  }
-
-  .mobile-deck-card:active {
-    transform: scale(0.985);
-  }
-
-  .mobile-deck-card .card-face {
-    height: 100%;
-    min-height: 420px;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 16px;
+  .deck-header-bar {
+    width: calc(100vw - 2 * clamp(10px, 4vw, 56px));
+    margin-left: clamp(10px, 4vw, 56px);
+    margin-right: clamp(10px, 4vw, 56px);
     box-sizing: border-box;
   }
 
-  /* Quiz cards in scroll view */
-  .mobile-deck-card.quiz-card-stack {
-    min-height: 460px;
+  /* Full-page snap scroll container */
+  .mobile-deck-scroll {
+    display: block;
+    width: 100%;
+    height: calc(100dvh - 180px); /* viewport minus header + nav bar */
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* hide scrollbar for clean look */
   }
 
+  .mobile-deck-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Each card = one full page */
+  .mobile-deck-card {
+    width: 100%;
+    height: calc(100dvh - 180px);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Card inner face fills the full height */
+  .mobile-deck-card .card-face,
   .mobile-deck-card .quiz-card-inner {
-    min-height: 420px;
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 52px 20px 24px;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
 
-  /* Scroll indicator chip */
+  /* Quiz card background */
+  .mobile-deck-card.quiz-card-stack {
+    background: linear-gradient(145deg, #1b1735, #111326);
+    border: none;
+  }
+
+  /* Lesson card visual */
+  .mobile-deck-card .card-visual-center {
+    margin: 16px auto;
+  }
+
+  .mobile-deck-card .card-visual-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .mobile-deck-card .visual-emoji {
+    font-size: 2.6rem;
+  }
+
+  .mobile-deck-card .card-title {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .mobile-deck-card .card-explanation {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .mobile-deck-card .card-bottom-hint {
+    font-size: 0.78rem;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 10px;
+  }
+
+  /* Card number badge */
+  .mobile-card-num {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 5;
+    pointer-events: none;
+    letter-spacing: 0.03em;
+  }
+
+  /* Scroll hint arrow shown at bottom of each card */
+  .mobile-card-scroll-arrow {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    z-index: 5;
+    pointer-events: none;
+    animation: arrowBounce 1.8s infinite ease-in-out;
+  }
+
+  .mobile-card-scroll-arrow i {
+    font-size: 0.9rem;
+  }
+
+  /* Hide scroll arrow on the last card */
+  .mobile-deck-card:last-child .mobile-card-scroll-arrow {
+    display: none;
+  }
+
+  /* Scroll label above the feed */
   .mobile-deck-scroll-label {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    margin-bottom: 10px;
+    padding: 8px 0 12px;
     font-size: 0.72rem;
     font-weight: 700;
     color: #818cf8;
@@ -5658,44 +5751,62 @@ textarea:focus-visible {
     opacity: 0.8;
   }
 
-  /* Card number badge */
-  .mobile-card-num {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 99px;
-    background: rgba(0, 0, 0, 0.35);
-    color: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(4px);
-    z-index: 2;
-    pointer-events: none;
+  /* Quiz card inner layout */
+  .mobile-deck-card .quiz-card-body {
+    flex: 1;
+    overflow-y: auto;
+    gap: 10px;
+    margin: 8px 0;
+  }
+
+  .mobile-deck-card .quiz-question-title {
+    font-size: 1.05rem;
+  }
+
+  .mobile-deck-card .quiz-deck-options {
+    gap: 8px;
+  }
+
+  .mobile-deck-card .quiz-card-footer {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
 }
 
+@keyframes arrowBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
+}
+
 @media (max-width: 520px) {
-  .mobile-deck-scroll {
-    gap: 12px;
-    max-height: 72vh;
-  }
-
   .mobile-deck-card {
-    min-height: 380px;
-    border-radius: 18px;
+    height: calc(100dvh - 165px);
   }
 
-  .mobile-deck-card .card-face {
-    min-height: 380px;
-    padding: 16px 14px;
+  .mobile-deck-scroll {
+    height: calc(100dvh - 165px);
   }
 
-  .mobile-deck-card.quiz-card-stack {
-    min-height: 420px;
-  }
-
+  .mobile-deck-card .card-face,
   .mobile-deck-card .quiz-card-inner {
-    min-height: 380px;
+    padding: 46px 16px 20px;
+  }
+
+  .mobile-deck-card .card-title {
+    font-size: 1.15rem;
+  }
+
+  .mobile-deck-card .card-explanation {
+    font-size: 0.88rem;
+  }
+
+  .mobile-deck-card .card-visual-circle {
+    width: 66px;
+    height: 66px;
+  }
+
+  .mobile-deck-card .visual-emoji {
+    font-size: 2.1rem;
   }
 }

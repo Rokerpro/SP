@@ -173,7 +173,7 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
                     type="button"
                     onClick={() => toggleInterest(interest)}
                   >
-                    <span className="interest-check">{selected ? '✓' : ''}</span>
+                    <span className="interest-check">{selected ? <i className="fa-solid fa-check" /> : ''}</span>
                     <span className="interest-icon">{icon}</span>
                     <span>#{interest.replace(' ', '')}</span>
                   </button>
@@ -238,7 +238,15 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
                       <strong>{person.name}</strong>
                       <small>@{person.username}</small>
                     </span>
-                    <span className="person-action">{selected ? '✓ Added' : '+ Add'}</span>
+                    <span className="person-action">
+                      {selected ? (
+                        <>
+                          <i className="fa-solid fa-check" style={{ marginRight: 4 }} /> Added
+                        </>
+                      ) : (
+                        '+ Add'
+                      )}
+                    </span>
                   </button>
                 )
               })}
@@ -336,7 +344,7 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
 
             <label htmlFor="email">EMAIL ADDRESS</label>
             <div className="input-wrap">
-              <span className="field-icon">✉</span>
+              <span className="field-icon"><i className="fa-solid fa-envelope" /></span>
               <input
                 id="email"
                 type="email"
@@ -349,7 +357,7 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
 
             <label htmlFor="password">PASSWORD</label>
             <div className="input-wrap">
-              <span className="field-icon">🔑</span>
+              <span className="field-icon"><i className="fa-solid fa-key" /></span>
               <input
                 id="password"
                 type="password"
@@ -363,7 +371,7 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
 
             <label htmlFor="confirm-password">CONFIRM PASSWORD</label>
             <div className="input-wrap">
-              <span className="field-icon">🔑</span>
+              <span className="field-icon"><i className="fa-solid fa-key" /></span>
               <input
                 id="confirm-password"
                 type="password"
@@ -376,7 +384,13 @@ export function SignupPage({ onSignupSuccess }: SignupPageProps) {
             </div>
 
             <button className="submit-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'CREATING ACCOUNT...' : 'CONTINUE & JOIN ✓'}
+              {isSubmitting ? (
+                'CREATING ACCOUNT...'
+              ) : (
+                <>
+                  CONTINUE &amp; JOIN <i className="fa-solid fa-check" style={{ marginLeft: 6 }} />
+                </>
+              )}
             </button>
           </form>
 

@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import './env.js'
 import { hashPassword } from './auth.js'
 import { connectDatabase, disconnectDatabase } from './db.js'
 import { Lesson, type LessonDocument } from './models/lesson.js'

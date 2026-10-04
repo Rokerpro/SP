@@ -62,7 +62,14 @@ export function LeaderboardPage({ currentUsername = '' }: LeaderboardPageProps) 
         <>
           <div className="leaderboard-podium">
             {leaderboardItems.slice(0, 3).map((item, idx) => {
-              const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'
+              const badge =
+                idx === 0 ? (
+                  <i className="fa-solid fa-medal" style={{ color: '#eab308' }} />
+                ) : idx === 1 ? (
+                  <i className="fa-solid fa-medal" style={{ color: '#94a3b8' }} />
+                ) : (
+                  <i className="fa-solid fa-medal" style={{ color: '#d97706' }} />
+                )
               const rankClass = idx === 0 ? 'rank-first' : idx === 1 ? 'rank-second' : 'rank-third'
               const name = item.displayName || item.username || 'Learner'
               const initials = name.slice(0, 2).toUpperCase()
@@ -103,8 +110,12 @@ export function LeaderboardPage({ currentUsername = '' }: LeaderboardPageProps) 
                     </div>
                   </div>
                   <div className="user-stats-meta">
-                    <span>🔥 {item.streak ?? 0} Streak</span>
-                    <span>✓ {item.completedCount ?? 0} Learned</span>
+                    <span>
+                      <i className="fa-solid fa-fire" style={{ color: '#f97316', marginRight: 4 }} /> {item.streak ?? 0} Streak
+                    </span>
+                    <span>
+                      <i className="fa-solid fa-check" style={{ color: '#22c55e', marginRight: 4 }} /> {item.completedCount ?? 0} Learned
+                    </span>
                     <span className="xp-badge">{item.xp ?? 0} XP</span>
                   </div>
                 </div>

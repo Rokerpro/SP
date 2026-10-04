@@ -1,6 +1,8 @@
+import './env.js'
 import cors from 'cors'
 import express from 'express'
 import { comparePassword, createToken, hashPassword, requireAuth, type AuthenticatedRequest } from './auth.js'
+import { askGemini } from './gemini.js'
 import { Lesson } from './models/lesson.js'
 import { Progress } from './models/progress.js'
 import { Quiz } from './models/quiz.js'
@@ -660,8 +662,27 @@ app.post('/api/tutor', requireAuth, async (request, response) => {
     response.status(400).json({ success: false, error: 'Ask a question first' })
     return
   }
-  const context = lesson ? ` about ${lesson.title}: ${lesson.explanation}` : ''
-  response.json({ success: true, data: { answer: `Here is a simple way to think about it${context}. Try explaining the idea in your own words, then check which part still feels unclear.` } })
+
+  try {
+    const answer = await askGemini({
+      prompt,
+      lesson: lesson
+        ? {
+            title: lesson.title,
+            topic: lesson.topic,
+            explanation: lesson.explanation,
+            category: lesson.category,
+          }
+        : null,
+    })
+    response.json({ success: true, data: { answer } })
+  } catch (error: any) {
+    console.error('Error generating AI answer:', error)
+    response.status(500).json({
+      success: false,
+      error: error?.message || 'Failed to get answer from Gemini AI',
+    })
+  }
 })
 
 app.get('/api/lessons/:slug', async (request, response) => {

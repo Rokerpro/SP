@@ -76,7 +76,7 @@ export function ProfilePage({
           ) : (
             <span>{displayName.slice(0, 2).toUpperCase()}</span>
           )}
-          <i aria-hidden="true">✎</i>
+          <i className="fa-solid fa-pen" aria-hidden="true" />
         </label>
         <div className="profile-summary">
           <h1>
@@ -112,11 +112,19 @@ export function ProfilePage({
             <div className="post-header">
               <span className="post-category">{post.category}</span>
               <span className={`status-badge ${post.status ?? 'approved'}`}>
-                {post.status === 'pending'
-                  ? '⏳ Under Review'
-                  : post.status === 'rejected'
-                  ? '❌ Rejected'
-                  : '✓ Published'}
+                {post.status === 'pending' ? (
+                  <>
+                    <i className="fa-solid fa-hourglass-half" style={{ marginRight: 4 }} /> Under Review
+                  </>
+                ) : post.status === 'rejected' ? (
+                  <>
+                    <i className="fa-solid fa-circle-xmark" style={{ marginRight: 4 }} /> Rejected
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-check" style={{ marginRight: 4 }} /> Published
+                  </>
+                )}
               </span>
             </div>
             <h3>{post.title}</h3>

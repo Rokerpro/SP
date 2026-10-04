@@ -36,9 +36,11 @@ export function SavedPage({
         </div>
       ) : (
         <div className="empty-state saved-empty-state">
-          <div className="empty-state-icon">🔖</div>
+          <div className="empty-state-icon"><i className="fa-solid fa-bookmark" /></div>
           <h3>No Saved Volts</h3>
-          <p>You haven't saved any reels yet. Click the 🔖 Bookmark button on any reel to save it here!</p>
+          <p>
+            You haven't saved any reels yet. Click the <i className="fa-solid fa-bookmark" style={{ margin: '0 4px', color: '#fbbf24' }} /> Bookmark button on any reel to save it here!
+          </p>
         </div>
       )}
     </div>

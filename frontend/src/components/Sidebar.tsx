@@ -35,28 +35,28 @@ export function Sidebar({
         </NavLink>
 
         <NavLink to="/discover" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">🔍</span>
+          <span className="nav-icon"><i className="fa-solid fa-compass" /></span>
           <span className="nav-text">Discover</span>
         </NavLink>
 
         <NavLink to="/leaderboard" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">🏆</span>
+          <span className="nav-icon"><i className="fa-solid fa-trophy" /></span>
           <span className="nav-text">Leaderboard</span>
         </NavLink>
 
         <NavLink to="/saved" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">🔖</span>
+          <span className="nav-icon"><i className="fa-solid fa-bookmark" /></span>
           <span className="nav-text">Saved</span>
         </NavLink>
 
         <NavLink to="/friends" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">👥</span>
+          <span className="nav-icon"><i className="fa-solid fa-user-group" /></span>
           <span className="nav-text">Friends</span>
         </NavLink>
 
         {userRole === 'admin' && (
           <NavLink to="/admin" className={({ isActive }) => `sidebar-link admin-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🛡️</span>
+            <span className="nav-icon"><i className="fa-solid fa-shield-halved" /></span>
             <span className="nav-text">Admin Panel</span>
           </NavLink>
         )}
@@ -72,7 +72,7 @@ export function Sidebar({
         </NavLink>
 
         <button className="sidebar-logout" type="button" onClick={onLogout} title="Log Out">
-          <span className="nav-icon">🚪</span>
+          <span className="nav-icon"><i className="fa-solid fa-arrow-right-from-bracket" /></span>
           <span className="nav-text">Log Out</span>
         </button>
       </div>

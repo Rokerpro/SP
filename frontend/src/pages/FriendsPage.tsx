@@ -165,7 +165,13 @@ export function FriendsPage() {
                   className={`follow-btn ${userItem.isFollowing ? 'following' : ''}`}
                   onClick={() => handleToggleFollow(userItem.username)}
                 >
-                  {userItem.isFollowing ? '✓ Following' : '+ Follow'}
+                  {userItem.isFollowing ? (
+                    <>
+                      <i className="fa-solid fa-check" style={{ marginRight: 6 }} /> Following
+                    </>
+                  ) : (
+                    '+ Follow'
+                  )}
                 </button>
               </article>
             )

@@ -62,7 +62,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           <form onSubmit={handleSubmit}>
             <label htmlFor="email">EMAIL OR USERNAME</label>
             <div className="input-wrap">
-              <span className="field-icon">✉</span>
+              <span className="field-icon"><i className="fa-solid fa-envelope" /></span>
               <input
                 id="email"
                 type="text"
@@ -75,7 +75,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
             <label htmlFor="password">PASSWORD</label>
             <div className="input-wrap">
-              <span className="field-icon">🔑</span>
+              <span className="field-icon"><i className="fa-solid fa-key" /></span>
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -89,7 +89,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 type="button"
                 onClick={() => setShowPassword((visible) => !visible)}
               >
-                {showPassword ? '🙈' : '👁'}
+                {showPassword ? <i className="fa-solid fa-eye-slash" /> : <i className="fa-solid fa-eye" />}
               </button>
             </div>
 

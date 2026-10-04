@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import './env.js'
 import { app, ensureDefaultAdmin } from './app.js'
 import { connectDatabase } from './db.js'
 

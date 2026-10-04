@@ -1,3 +1,5 @@
+import { DynamicIcon } from './DynamicIcon'
+
 export type HomeLesson = {
   slug: string
   category: string
@@ -53,14 +55,15 @@ export function ReelCard({
               <h2 className="reel-title">{lesson.title}</h2>
               <p className="reel-explanation">{lesson.explanation}</p>
               <div className="reel-takeaway-box">
-                <strong>💡 Takeaway:</strong> {lesson.takeaway}
+                <i className="fa-solid fa-lightbulb" style={{ color: '#eab308', marginRight: 6 }} />
+                <strong>Takeaway:</strong> {lesson.takeaway}
               </div>
             </div>
           </div>
         ) : (
           <div className="reel-text-wrapper card-scrollable-body">
             <div className="reel-visual-header">
-              <span className="reel-visual-icon">{lesson.visualKey}</span>
+              <span className="reel-visual-icon"><DynamicIcon name={lesson.visualKey} /></span>
               <span className="reel-format-badge">Text Reel</span>
             </div>
             <div className="reel-text-body">
@@ -72,7 +75,8 @@ export function ReelCard({
               <h2 className="reel-title">{lesson.title}</h2>
               <p className="reel-explanation">{lesson.explanation}</p>
               <div className="reel-takeaway-box">
-                <strong>💡 Key Takeaway:</strong> {lesson.takeaway}
+                <i className="fa-solid fa-lightbulb" style={{ color: '#eab308', marginRight: 6 }} />
+                <strong>Key Takeaway:</strong> {lesson.takeaway}
               </div>
             </div>
           </div>
@@ -88,7 +92,7 @@ export function ReelCard({
             onClick={() => onOpenQuiz(lesson)}
             title="Test Quiz"
           >
-            <span className="rail-icon">🧠</span>
+            <span className="rail-icon"><i className="fa-solid fa-brain" /></span>
             <span className="rail-label">Quiz</span>
           </button>
         )}
@@ -100,7 +104,9 @@ export function ReelCard({
             onClick={() => onToggleSave(lesson)}
             title={isSaved ? 'Saved' : 'Bookmark'}
           >
-            <span className="rail-icon">{isSaved ? '🔖' : '🏷️'}</span>
+            <span className="rail-icon">
+              <i className={isSaved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'} />
+            </span>
             <span className="rail-label">{isSaved ? 'Saved' : 'Save'}</span>
           </button>
         )}
@@ -112,7 +118,9 @@ export function ReelCard({
             onClick={() => onComplete(lesson)}
             title={isCompleted ? 'Learned' : 'Mark Learned'}
           >
-            <span className="rail-icon">{isCompleted ? '✓' : '⚡'}</span>
+            <span className="rail-icon">
+              <i className={isCompleted ? 'fa-solid fa-check' : 'fa-solid fa-bolt'} />
+            </span>
             <span className="rail-label">{isCompleted ? 'Learnt' : 'Learn'}</span>
           </button>
         )}

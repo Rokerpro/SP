@@ -126,7 +126,7 @@ export function AdminPage({ onApprovePost, onRejectPost }: AdminPageProps) {
                         setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug))
                       }}
                     >
-                      ✓ Approve & Publish
+                      <i className="fa-solid fa-check" style={{ marginRight: 6 }} /> Approve &amp; Publish
                     </button>
                     <button
                       className="reject-btn"
@@ -136,7 +136,7 @@ export function AdminPage({ onApprovePost, onRejectPost }: AdminPageProps) {
                         setPendingPosts((curr) => curr.filter((p) => p.slug !== post.slug))
                       }}
                     >
-                      ✕ Reject
+                      <i className="fa-solid fa-xmark" style={{ marginRight: 6 }} /> Reject
                     </button>
                   </div>
                 </article>

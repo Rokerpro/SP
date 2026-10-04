@@ -8,6 +8,7 @@ type DiscoverPageProps = {
   searchQuery: string
   tutorPrompt: string
   tutorAnswer: string
+  isTutorLoading?: boolean
   onSearchQueryChange: (query: string) => void
   onSearchSubmit: (e: FormEvent<HTMLFormElement>) => void
   onCategorySelect: (category: string) => void
@@ -25,6 +26,7 @@ export function DiscoverPage({
   searchQuery,
   tutorPrompt,
   tutorAnswer,
+  isTutorLoading = false,
   onSearchQueryChange,
   onSearchSubmit: _onSearchSubmit,
   onCategorySelect,
@@ -112,7 +114,7 @@ export function DiscoverPage({
 
       {/* Search Bar */}
       <form className="search-bar-form" onSubmit={handleFormSubmit}>
-        <span className="search-icon">🔍</span>
+        <span className="search-icon"><i className="fa-solid fa-magnifying-glass" /></span>
         <input
           type="text"
           placeholder="Search by topic, title, takeaway, or keyword..."
@@ -127,7 +129,7 @@ export function DiscoverPage({
             title="Clear search"
             aria-label="Clear search"
           >
-            ✕
+            <i className="fa-solid fa-xmark" />
           </button>
         )}
         <button type="submit">
@@ -159,7 +161,9 @@ export function DiscoverPage({
       {/* AI Assistant */}
       <section className="tutor-box-card">
         <div className="tutor-header">
-          <span className="tutor-badge">🤖 AI Learning Assistant</span>
+          <span className="tutor-badge">
+            <i className="fa-solid fa-robot" style={{ marginRight: 6 }} /> AI Learning Assistant
+          </span>
           <h3>Have a question about any reel?</h3>
         </div>
         <form onSubmit={onAskTutor} className="tutor-input-form">
@@ -168,11 +172,20 @@ export function DiscoverPage({
             placeholder="e.g. Can you explain Rayleigh scattering simply?"
             value={tutorPrompt}
             onChange={(e) => onTutorPromptChange(e.target.value)}
+            disabled={isTutorLoading}
             required
           />
-          <button type="submit">Ask AI</button>
+          <button type="submit" disabled={isTutorLoading}>
+            {isTutorLoading ? 'Thinking...' : 'Ask AI'}
+          </button>
         </form>
-        {tutorAnswer && (
+        {isTutorLoading && (
+          <div className="tutor-answer-box tutor-loading-state">
+            <div className="tutor-spinner"></div>
+            <span>Consulting Gemini AI...</span>
+          </div>
+        )}
+        {!isTutorLoading && tutorAnswer && (
           <div className="tutor-answer-box">
             <p>{tutorAnswer}</p>
           </div>

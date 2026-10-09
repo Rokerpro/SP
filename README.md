@@ -1,3 +1,5 @@
+This project is built for the Ullens hackathon 2026
+
 # Bolt
 
 Bolt is a short-form learning platform for the Education and Learning hackathon theme.
